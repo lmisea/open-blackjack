@@ -16,5 +16,7 @@ public class Cartas {
 		mesa.dibujarPoligonoLleno(xPuntos1, yPuntos1, 4, Colores.RED);
 
 		mesa.mostrar();
+		// Prueba numero 1
+		// intento 2
 	}
 }
