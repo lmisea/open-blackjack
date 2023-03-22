@@ -1,51 +1,21 @@
+import java.util.Random;
+
 public class Blackjack {
     enum Carta {
-        TREBOL,
-        CORAZON,
-        PICA,
-        DIAMANTE;
+        AT,DOST,TREST,CUATROT,CINCOT,SEIST,SIETET,OCHOT,NUEVET,DIEZT,JT,QT,KT,ET,
+        AC,DOSC,TRESC,CUATROC,CINCOC,SEISC,SIETEC,OCHOC,NUEVEC,DIEZC,JC,QC,KC,EC,
+        AD,DOSD,TRESD,CUATROD,CINCOD,SEISD,SIETED,OCHOD,NUEVED,DIEZD,JD,QD,KD,ED,
+        AP,DOSP,TRESP,CUATROP,CINCOP,SEISP,SIETEP,OCHOP,NUEVEP,DIEZP,JP,QP,KP,EP;
     }        
-    static String[] Mazo() {
-        int i = 0 ;
-        int j = 0 ;
-	Carta c1 = Carta.TREBOL;
-        Carta c2 = Carta.CORAZON;
-        Carta c3 = Carta.DIAMANTE;
-        Carta c4 = Carta.PICA;
-        String[] id = {"A","2","3","4","5","6","7","8","9","10","J","Q","K", "E"}; 
-        String[] Carta = new String[56];
-        while (i <= 13) {
-            Carta[i] = id[j]+c1;
-            j++;
-            i++;
-        }
-        j = 0;
-        while (13 < i && i <= 27) {
-            Carta[i] = id[j]+c2;
-            j++;
-            i++;
-        }
-        j = 0;
-        while (27 < i && i <= 41) {
-            Carta[i] = id[j]+c3;
-            j++;
-            i++;
-        }
-        j = 0;
-        while (41 < i && i <= 55) {
-            Carta[i] = id[j]+c4;
-            j++;
-            i++;
-        }
-        return Carta;
+    static Carta darCarta(Carta[] a) {
+        Random carta = new Random();
+        int n = carta.nextInt(56);
+        return a[n];
     }
+
     public static void main(String[] args) {
-        int i = 0;
-        while (i < 56){        
-        	System.out.println(Mazo()[i]);
-        	i++;
-        }
-
-
+        Carta mazo[] = Carta.values();
+        Carta x = darCarta(mazo);
+        System.out.println(x);
     }
 }
