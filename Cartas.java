@@ -4,50 +4,72 @@ public class Cartas {
 	 * Método con el que se mostrará gráficamente las cartas que vayan apareciendo
 	 * en la mano del jugador y en la del crupier
 	 */
-	public static void dibujarCarta(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta, String palo) {
-		// Dibujar la carta y el rectángulo interno de la carta
-		mesa.dibujarRectanguloLleno(posXdeCarta, posYdeCarta, 100, 150, Colores.WHITE);
-		mesa.dibujarRectangulo(posXdeCarta + 8, posYdeCarta + 10, 82, 130, Colores.DARK_GRAY);
+	public static void dibujarCarta(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta,
+			int alturaCarta, int anchoCarta, String palo) {
+		// Dibujar el rectángulo externo e interno de la carta
+		mesa.dibujarRectanguloLleno(posXdeCarta, posYdeCarta, 72, 108, Colores.WHITE);
+		mesa.dibujarRectangulo(posXdeCarta + 4, posYdeCarta + 5, anchoCarta - 10, alturaCarta - 10, Colores.DARK_GRAY);
 
 		// Dibujar el símbolo de los palos de las cartas
 		if (palo.equals("Picas")) {
 			// Dibujar el símbolo de Picas
-			int[] xPuntos = new int[] { posXdeCarta + 38, posXdeCarta + 48, posXdeCarta + 58, posXdeCarta + 48 };
-			int[] yPuntos = new int[] { 85, 65, 85, 105 };
-			mesa.dibujarPoligonoLleno(xPuntos, yPuntos, 4, Colores.RED);
+			int[] xPuntos = new int[] { posXdeCarta + (anchoCarta / 2) - 12, posXdeCarta + (anchoCarta / 2),
+					posXdeCarta + (anchoCarta / 2) + 12, posXdeCarta + (anchoCarta / 2) };
+			int[] yPuntos = new int[] { posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) - 18,
+					posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) + 18 };
+			mesa.dibujarPoligonoLleno(xPuntos, yPuntos, 4, Colores.BLACK);
+
 		} else if (palo.equals("Diamantes")) {
 			// Dibujar el símbolo de Diamantes
-			int[] xPuntos = new int[] { posXdeCarta + 38, posXdeCarta + 48, posXdeCarta + 58, posXdeCarta + 48 };
-			int[] yPuntos = new int[] { 85, 65, 85, 105 };
+			int[] xPuntos = new int[] { posXdeCarta + (anchoCarta / 2) - 12, posXdeCarta + (anchoCarta / 2),
+					posXdeCarta + (anchoCarta / 2) + 12, posXdeCarta + (anchoCarta / 2) };
+			int[] yPuntos = new int[] { posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) - 18,
+					posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) + 18 };
 			mesa.dibujarPoligonoLleno(xPuntos, yPuntos, 4, Colores.RED);
+
 		} else if (palo.equals("Treboles")) {
 			// Dibujar el símbolo de Tréboles
-			int[] xPuntos = new int[] { posXdeCarta + 38, posXdeCarta + 48, posXdeCarta + 58, posXdeCarta + 48 };
-			int[] yPuntos = new int[] { 85, 65, 85, 105 };
-			mesa.dibujarPoligonoLleno(xPuntos, yPuntos, 4, Colores.RED);
+			int[] xPuntos = new int[] { posXdeCarta + (anchoCarta / 2) - 12, posXdeCarta + (anchoCarta / 2),
+					posXdeCarta + (anchoCarta / 2) + 12, posXdeCarta + (anchoCarta / 2) };
+			int[] yPuntos = new int[] { posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) - 18,
+					posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) + 18 };
+			mesa.dibujarPoligonoLleno(xPuntos, yPuntos, 4, Colores.BLACK);
+
 		} else if (palo.equals("Corazones")) {
 			// Dibujar el símbolo de Corazones
-			int[] xPuntos = new int[] { posXdeCarta + 38, posXdeCarta + 48, posXdeCarta + 58, posXdeCarta + 48 };
-			int[] yPuntos = new int[] { 85, 65, 85, 105 };
+			int[] xPuntos = new int[] { posXdeCarta + (anchoCarta / 2) - 12, posXdeCarta + (anchoCarta / 2),
+					posXdeCarta + (anchoCarta / 2) + 12, posXdeCarta + (anchoCarta / 2) };
+			int[] yPuntos = new int[] { posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) - 18,
+					posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) + 18 };
 			mesa.dibujarPoligonoLleno(xPuntos, yPuntos, 4, Colores.RED);
 		}
 	}
 
 	public static void main(String[] args) {
 		// Resolución de la ventana donde se ejecutará el juego de BlackJack
-		int altura = 768;
-		int ancho = 1278;
+		int alturaCarta = 108;
+		int anchoCarta = 72;
+		int alturaMesa = 774;
+		int anchoMesa = 1278;
 
-		// Creación del panel de la Máquina de Trazados
-		MaquinaDeTrazados mesa = new MaquinaDeTrazados(ancho, altura, "Mesa de blackjack", Colores.WHITE);
+		// Panel de la Máquina de Trazados. El color gris crea un fondo agradable
+		MaquinaDeTrazados mesa = new MaquinaDeTrazados(anchoMesa, alturaMesa, "OpenJML BlackJack", Colores.GRAY);
 
-		// Semicírculo verde que imita una mesa de BlackJack real
-		mesa.dibujarOvaloLleno(1, -(ancho / 2), ancho, ancho, Colores.GREEN);
+		// Semicírculo verde que imita una mesa de BlackJack real con un borde oscuro
+		mesa.dibujarOvaloLleno(1, -(anchoMesa / 2), anchoMesa, anchoMesa, Colores.DARK_GRAY);
+		mesa.dibujarOvaloLleno(11, -(anchoMesa / 2), anchoMesa - 20, anchoMesa - 20, Colores.GREEN);
 
-		dibujarCarta(mesa, (ancho / 2) - 215, 10, "Picas");
-		dibujarCarta(mesa, (ancho / 2) - 105, 10, "Diamantes");
-		dibujarCarta(mesa, (ancho / 2) + 5, 10, "Treboles");
-		dibujarCarta(mesa, (ancho / 2) + 115, 10, "Corazones");
+		// Cartas del crupier
+		dibujarCarta(mesa, (anchoMesa / 2) - 215, 20, alturaCarta, anchoCarta, "Picas");
+		dibujarCarta(mesa, (anchoMesa / 2) - 105, 20, alturaCarta, anchoCarta, "Diamantes");
+		dibujarCarta(mesa, (anchoMesa / 2) + 5, 20, alturaCarta, anchoCarta, "Treboles");
+		dibujarCarta(mesa, (anchoMesa / 2) + 115, 20, alturaCarta, anchoCarta, "Corazones");
+
+		// Cartas del jugador
+		dibujarCarta(mesa, (anchoMesa / 2) - 215, 280, alturaCarta, anchoCarta, "Picas");
+		dibujarCarta(mesa, (anchoMesa / 2) - 105, 280, alturaCarta, anchoCarta, "Diamantes");
+		dibujarCarta(mesa, (anchoMesa / 2) + 5, 280, alturaCarta, anchoCarta, "Treboles");
+		dibujarCarta(mesa, (anchoMesa / 2) + 115, 280, alturaCarta, anchoCarta, "Corazones");
 
 		mesa.mostrar();
 	}
