@@ -27,7 +27,7 @@ public class Cartas {
 					posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) + 18 };
 			mesa.dibujarPoligonoLleno(xPuntos, yPuntos, 4, Colores.RED);
 
-		} else if (palo.equals("Treboles")) {
+		} else if (palo.equals("Tréboles")) {
 			// Dibujar el símbolo de Tréboles
 			int[] xPuntos = new int[] { posXdeCarta + (anchoCarta / 2) - 12, posXdeCarta + (anchoCarta / 2),
 					posXdeCarta + (anchoCarta / 2) + 12, posXdeCarta + (anchoCarta / 2) };
@@ -37,11 +37,15 @@ public class Cartas {
 
 		} else if (palo.equals("Corazones")) {
 			// Dibujar el símbolo de Corazones
-			int[] xPuntos = new int[] { posXdeCarta + (anchoCarta / 2) - 12, posXdeCarta + (anchoCarta / 2),
-					posXdeCarta + (anchoCarta / 2) + 12, posXdeCarta + (anchoCarta / 2) };
-			int[] yPuntos = new int[] { posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) - 18,
-					posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) + 18 };
+			int[] xPuntos = new int[] { posXdeCarta + (anchoCarta / 2) - 14, posXdeCarta + (anchoCarta / 2),
+					posXdeCarta + (anchoCarta / 2) + 14, posXdeCarta + (anchoCarta / 2) };
+			int[] yPuntos = new int[] { posYdeCarta + (alturaCarta / 2) + 1, posYdeCarta + (alturaCarta / 2) - 2,
+					posYdeCarta + (alturaCarta / 2) + 1, posYdeCarta + (alturaCarta / 2) + 15 };
 			mesa.dibujarPoligonoLleno(xPuntos, yPuntos, 4, Colores.RED);
+			mesa.dibujarOvaloLleno(posXdeCarta + (anchoCarta / 2) - 16, posYdeCarta + (alturaCarta / 2) - 12, 17, 17,
+					Colores.RED);
+			mesa.dibujarOvaloLleno(posXdeCarta + (anchoCarta / 2) - 2, posYdeCarta + (alturaCarta / 2) - 12, 17, 17,
+					Colores.RED);
 		}
 	}
 
@@ -62,13 +66,13 @@ public class Cartas {
 		// Cartas del crupier
 		dibujarCarta(mesa, (anchoMesa / 2) - 215, 20, alturaCarta, anchoCarta, "Picas");
 		dibujarCarta(mesa, (anchoMesa / 2) - 105, 20, alturaCarta, anchoCarta, "Diamantes");
-		dibujarCarta(mesa, (anchoMesa / 2) + 5, 20, alturaCarta, anchoCarta, "Treboles");
+		dibujarCarta(mesa, (anchoMesa / 2) + 5, 20, alturaCarta, anchoCarta, "Tréboles");
 		dibujarCarta(mesa, (anchoMesa / 2) + 115, 20, alturaCarta, anchoCarta, "Corazones");
 
 		// Cartas del jugador
 		dibujarCarta(mesa, (anchoMesa / 2) - 215, 280, alturaCarta, anchoCarta, "Picas");
 		dibujarCarta(mesa, (anchoMesa / 2) - 105, 280, alturaCarta, anchoCarta, "Diamantes");
-		dibujarCarta(mesa, (anchoMesa / 2) + 5, 280, alturaCarta, anchoCarta, "Treboles");
+		dibujarCarta(mesa, (anchoMesa / 2) + 5, 280, alturaCarta, anchoCarta, "Tréboles");
 		dibujarCarta(mesa, (anchoMesa / 2) + 115, 280, alturaCarta, anchoCarta, "Corazones");
 
 		mesa.mostrar();
