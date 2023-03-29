@@ -26,6 +26,8 @@ public class Blackjack {
 
     // Métodos para obtener información de las cartas que se repartan aleatoriamente
 
+    // @requires carta.length == 56;
+    // @ensures \result == "Picas" || \result == "Diamantes" || \result == "Treboles" || \result == "Corazones"; 
     public static String obtenerPaloCarta(Carta carta) {
         if (carta.ordinal() <= 13)
             return "Picas";
@@ -37,6 +39,8 @@ public class Blackjack {
             return "Corazones";
     }
 
+    // @requires 0 < carta.length;
+    // @ensures \result > 0 &&  \result <= 11; 
     public static int obtenerValorCarta(Carta carta) {
         if (carta.ordinal() % 14 <= 9)
             return (carta.ordinal() % 14) + 1;
@@ -45,7 +49,12 @@ public class Blackjack {
         else
             return 11;
     }
-
+    
+    // @requires carta != null;
+    /* @ensures \result == "A" || \result == "J" || \result == "Q" || \result == "K" || \result == "Joker"
+    @  || \result == "2" || \result == "3" || \result == "4" || \result == "5" || \result == "6"
+    @  || \result == "7" || \result == "8" || \result == "9" || \result == "10";
+    @*/
     public static String obtenerNombreCarta(Carta carta) {
         if (carta.ordinal() % 14 == 0)
             return "A";
@@ -63,23 +72,38 @@ public class Blackjack {
 
     // Función Repartir una Carta
 
+    // @requires 0 < baraja.length <= 56;
+    // @ensures \exists int i; 0 <= i && i < 56; \result == baraja[i];
     public static Carta darCarta(Carta[] baraja) {
         Random carta = new Random();
         int aleatorio = carta.nextInt(56);
+        //@ assert aleatorio >= 0 && aleatorio < 56 ;
         return baraja[aleatorio];
     }
 
     // Función Obtener monto de la apuesta
 
-    public static int obtenerApuesta(int credito) {
-        Console con = System.console();
+    // @requires credito >= 10;
+    // @ensures \result >= 10 || \result <= credito;
+    public static /*@ non_null */ int obtenerApuesta(int credito) {
         int i = 0;
+        /*@ non_null */ Console con = System.console();
         int apuesta = Integer.parseInt(con.readLine("Para empezar la partida ingresa el monto ha apostar: "));
-        while (apuesta > credito || apuesta < 10) {
-            apuesta = Integer.parseInt(con.readLine("Cantidad errónea, por favor ingrese otro monto: "));
-            i++;
-            if (i == 5) {
+        //@ assert String.valueOf(apuesta) != null;
+
+        //@ maintaining 0 <= i <= 5;
+        //@ maintaining (\forall int k; 0 <= k && k < i; apuesta > credito || apuesta < 10 || apuesta <= credito || apuesta >= 10 );
+        //@ decreases 5 - i;
+        while (i < 5) {
+            if (i == 4) {
+                System.out.println("Se le ha establecido la apuesta minima");
                 apuesta = 10;
+                break;
+            } else if (apuesta > credito || apuesta < 10) {
+                apuesta = Integer.parseInt(con.readLine("Cantidad errónea, por favor ingrese otro monto: "));
+                i++; 
+            } else if (apuesta <= credito || apuesta >= 10) {
+                break;
             }
         }
         return apuesta;
@@ -87,13 +111,27 @@ public class Blackjack {
 
     // Función Determinar el valor de una mano
 
+    // @requires 0 < manoJugador.length <= 21;
+    // @requires 0 < numCartasMano && numCartasMano <= 21;
+    /* @ensures \result == 0 || \result == 1 || \result == 2 || \result == 3 || \result == 4
+    @  || \result == 4 || \result == 5 || \result == 6 || \result == 7 ;
+    @  || \result == 8 || \result == 9 || \result == 10 || \result == 11 ;
+    @  || \result == 12 || \result == 13 || \result == 14 || \result == 15 ;
+    @  || \result == 16 || \result == 17 || \result == 18 || \result == 19 ;
+    @  || \result == 20 || \result == 21;
+    @*/
     public static int valorMano(Carta[] manoJugador, int numCartasMano) {
         int i = 0;
         int puntosMano = 0;
+        
+        //@ maintaining 0 <= i <= numCartasMano;
+        //@ maintaining \forall int k; 0 <= k && k < i; puntosMano >= 0 && puntosMano <= 21;
+        //@ decreases numCartasMano - i;
         while (i < numCartasMano) {
-            puntosMano = obtenerValorCarta(manoJugador[i]) + puntosMano;
+            puntosMano += obtenerValorCarta(manoJugador[i]);
             i++;
         }
+        //@ assert puntosMano >= 0 && puntosMano <= 21;
         return puntosMano;
     }
 
