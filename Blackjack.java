@@ -71,11 +71,11 @@ public class Blackjack {
 
     // Función Obtener monto de la apuesta
 
-    public static int obtenerApuesta(int x) {
+    public static int obtenerApuesta(int credito) {
         Console con = System.console();
         int i = 0;
         int apuesta = Integer.parseInt(con.readLine("Para empezar la partida ingresa el monto ha apostar: "));
-        while (apuesta > x || apuesta < 10) {
+        while (apuesta > credito || apuesta < 10) {
             apuesta = Integer.parseInt(con.readLine("Cantidad errónea, por favor ingrese otro monto: "));
             i++;
             if (i == 5) {
@@ -87,62 +87,57 @@ public class Blackjack {
 
     // Función Determinar el valor de una mano
 
-    // public static int valorMano(Carta[] manoJugador, int numCartasMano, int
-    // puntosMano) {
-    // int i = 0;
-    // while (i < numCartasMano) {
-    // puntosMano = manoJugador[i].valor + puntosMano;
-    // i++;
-    // }
-    // return puntosMano;
-    // }
+    public static int valorMano(Carta[] manoJugador, int numCartasMano) {
+        int i = 0;
+        int puntosMano = 0;
+        while (i < numCartasMano) {
+            puntosMano = obtenerValorCarta(manoJugador[i]) + puntosMano;
+            i++;
+        }
+        return puntosMano;
+    }
 
     public static void main(String[] args) {
         Carta mazo[] = new Carta[] {
-                Carta.AS_PICAS, Carta.DOS_PICAS, Carta.TRES_PICAS, Carta.CUATRO_PICAS,
-                Carta.CINCO_PICAS, Carta.SEIS_PICAS, Carta.SIETE_PICAS, Carta.OCHO_PICAS,
-                Carta.NUEVE_PICAS, Carta.DIEZ_PICAS, Carta.J_PICAS, Carta.Q_PICAS,
-                Carta.K_PICAS, Carta.COMODÍN_PICAS, Carta.AS_DIAMANTE, Carta.DOS_DIAMANTE,
-                Carta.TRES_DIAMANTE, Carta.CUATRO_DIAMANTE, Carta.CINCO_DIAMANTE, Carta.SEIS_DIAMANTE,
-                Carta.SIETE_DIAMANTE, Carta.OCHO_DIAMANTE, Carta.NUEVE_DIAMANTE, Carta.DIEZ_DIAMANTE,
-                Carta.J_DIAMANTE, Carta.Q_DIAMANTE, Carta.K_DIAMANTE, Carta.COMODÍN_DIAMANTE,
-                Carta.AS_TREBOL, Carta.DOS_TREBOL, Carta.TRES_TREBOL, Carta.CUATRO_TREBOL,
-                Carta.CINCO_TREBOL, Carta.SEIS_TREBOL, Carta.SIETE_TREBOL, Carta.OCHO_TREBOL,
-                Carta.NUEVE_TREBOL, Carta.DIEZ_TREBOL, Carta.J_TREBOL, Carta.Q_TREBOL,
-                Carta.K_TREBOL, Carta.COMODÍN_TREBOL, Carta.AS_CORAZON, Carta.DOS_CORAZON,
-                Carta.TRES_CORAZON, Carta.CUATRO_CORAZON, Carta.CINCO_CORAZON, Carta.SEIS_CORAZON,
-                Carta.SIETE_CORAZON, Carta.OCHO_CORAZON, Carta.NUEVE_CORAZON, Carta.DIEZ_CORAZON,
-                Carta.J_CORAZON, Carta.Q_CORAZON, Carta.K_CORAZON, Carta.COMODÍN_CORAZON };
+            Carta.AS_PICAS, Carta.DOS_PICAS, Carta.TRES_PICAS, Carta.CUATRO_PICAS,
+            Carta.CINCO_PICAS, Carta.SEIS_PICAS, Carta.SIETE_PICAS, Carta.OCHO_PICAS,
+            Carta.NUEVE_PICAS, Carta.DIEZ_PICAS, Carta.J_PICAS, Carta.Q_PICAS,
+            Carta.K_PICAS, Carta.COMODÍN_PICAS, Carta.AS_DIAMANTE, Carta.DOS_DIAMANTE,
+            Carta.TRES_DIAMANTE, Carta.CUATRO_DIAMANTE, Carta.CINCO_DIAMANTE, Carta.SEIS_DIAMANTE,
+            Carta.SIETE_DIAMANTE, Carta.OCHO_DIAMANTE, Carta.NUEVE_DIAMANTE, Carta.DIEZ_DIAMANTE,
+            Carta.J_DIAMANTE, Carta.Q_DIAMANTE, Carta.K_DIAMANTE, Carta.COMODÍN_DIAMANTE,
+            Carta.AS_TREBOL, Carta.DOS_TREBOL, Carta.TRES_TREBOL, Carta.CUATRO_TREBOL,
+            Carta.CINCO_TREBOL, Carta.SEIS_TREBOL, Carta.SIETE_TREBOL, Carta.OCHO_TREBOL,
+            Carta.NUEVE_TREBOL, Carta.DIEZ_TREBOL, Carta.J_TREBOL, Carta.Q_TREBOL,
+            Carta.K_TREBOL, Carta.COMODÍN_TREBOL, Carta.AS_CORAZON, Carta.DOS_CORAZON,
+            Carta.TRES_CORAZON, Carta.CUATRO_CORAZON, Carta.CINCO_CORAZON, Carta.SEIS_CORAZON,
+            Carta.SIETE_CORAZON, Carta.OCHO_CORAZON, Carta.NUEVE_CORAZON, Carta.DIEZ_CORAZON,
+            Carta.J_CORAZON, Carta.Q_CORAZON, Carta.K_CORAZON, Carta.COMODÍN_CORAZON 
+        };
+
         Carta jugador[] = new Carta[21];
-        Carta crupier[] = new Carta[21];
+        Carta crupier[] = new Carta[17];
         int crédito = 100;
+        int puntosJugador = 0;
+        int puntosCrupier = 0;
 
         Console con = System.console();
         String name = con.readLine("Ingrese su nombre: ");
         System.out.println("Es un placer tenerte aquí " + name);
-        Carta cartaAleatoria = darCarta(mazo);
-        System.out.println(cartaAleatoria);
-        System.out.println(obtenerPaloCarta(cartaAleatoria));
-        System.out.println(obtenerValorCarta(cartaAleatoria));
-        System.out.println(obtenerNombreCarta(cartaAleatoria));
+        int apuesta = obtenerApuesta(crédito);
+    
+        int i = 0;
+        while (i < 2) {
+            jugador[i] = darCarta(mazo);
+            crupier[i] = darCarta(mazo);
+            i++;
+        }
 
-        // while (crédito >= 10) {
-        // int i = 0;
-        // int j = 2;
-        // int apuesta = obtenerApuesta(crédito);
-        // while (i < 2) {
-        // jugador[i] = darCarta(mazo);
-        // crupier[i] = darCarta(mazo);
-        // i++;
-        // }
-        // int valorJugador = valorMano(jugador, j, 0);
-        // int valorCrupier = valorMano(crupier, j, 0);
-        // System.out.println(valorJugador);
-        // System.out.println(valorCrupier);
-        // System.out.println(crupier[0].valor);
+        puntosJugador = valorMano(jugador, 2);
+        puntosCrupier = valorMano(crupier, 2);
+        System.out.println("Punto de la carta descubierta del crupier: "+obtenerValorCarta(crupier[0]));
+        System.out.println("Puntos actuales: "+puntosJugador);
+        String opcion = con.readLine("");
 
-        // break;
-        // }
-        System.out.println("El juego se ha terminado");
     }
 }
