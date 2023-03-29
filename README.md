@@ -6,10 +6,30 @@ Juego de BlackJack implementado con OpenJML. Este es el Proyecto Final de CI-269
 
 ## Compilar y ejecutar
 
-Para compilar la visualización de la interfaz gráfica:
+### Archivo principal
+
+Para compilar:
 
 ```
-openjml --compile -cp maquina_trazados/lib/maquinaTrazados-v0.1.jar *.java
+openjml --rac -cp maquina_trazados/lib/maquinaTrazados-v0.1.jar Blackjack.java
+```
+
+Para hacer la verificación estática:
+
+```
+openjml --esc --exclude main -cp maquina_trazados/lib/maquinaTrazados-v0.1.jar Blackjack.java
+```
+
+Para ejecutar el programa:
+
+```
+openjml-java -cp maquina_trazados/lib/maquinaTrazados-v0.1.jar:. Blackjack
+```
+
+### Interfaz gráfica:
+
+```
+openjml --compile -cp maquina_trazados/lib/maquinaTrazados-v0.1.jar Cartas.java
 ```
 
 Para ejecutar y abrir la ventana con la interfaz gráfica:
