@@ -3,10 +3,10 @@ import java.awt.Font;
 public class Cartas {
 
 	/**
-	 * Método con el que se mostrará gráficamente las cartas que vayan apareciendo
-	 * en la mano del jugador y en la del crupier
+	 * Metodo con el que se mostrara graficamente las cartas visibles que vayan
+	 * apareciendo en la mano del jugador y en la del crupier
 	 */
-	public static void dibujarCarta(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta,
+	public static void dibujarCartaVisible(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta,
 			int alturaCarta, int anchoCarta, String paloCarta, String nombreCarta) {
 		// Dibujar el rectángulo externo e interno de la carta
 		mesa.dibujarRectanguloLleno(posXdeCarta, posYdeCarta, 72, 108, Colores.WHITE);
@@ -96,6 +96,84 @@ public class Cartas {
 		mesa.dibujarString(nombreCarta, posXEsqInfIzquierda, posYEsqInfIzquierda, color);
 	}
 
+	/**
+	 * Metodo con el que se mostrara graficamente las cartas volteadas que vayan
+	 * apareciendo en la mano del crupier
+	 */
+	public static void dibujarCartaVolteada(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta,
+			int alturaCarta, int anchoCarta) {
+		// Dibujar el rectangulo externo e interno de la carta volteada
+		Colores color = Colores.ORANGE;
+		mesa.dibujarRectanguloLleno(posXdeCarta, posYdeCarta, 72, 108, Colores.DARK_GRAY);
+		mesa.dibujarRectangulo(posXdeCarta + 4, posYdeCarta + 5, anchoCarta - 10, alturaCarta - 10, color);
+
+		// Arreglos para las coordenadas de los triangulos y rombos del patron central
+		int[] xPuntos1 = new int[] { posXdeCarta + (anchoCarta / 2) - 12, posXdeCarta + (anchoCarta / 2) - 1,
+				posXdeCarta + (anchoCarta / 2) + 11, posXdeCarta + (anchoCarta / 2) - 1 };
+		int[] yPuntos1 = new int[] { posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) - 19,
+				posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) + 19 };
+		int[] xPuntos2 = new int[] { posXdeCarta + (anchoCarta / 2) - 23, posXdeCarta + (anchoCarta / 2) - 12,
+				posXdeCarta + (anchoCarta / 2) - 1 };
+		int[] xPuntos3 = new int[] { posXdeCarta + (anchoCarta / 2) + 21, posXdeCarta + (anchoCarta / 2) + 10,
+				posXdeCarta + (anchoCarta / 2) - 1 };
+		int[] yPuntos2 = new int[] { posYdeCarta + (alturaCarta / 2) - 19, posYdeCarta + (alturaCarta / 2),
+				posYdeCarta + (alturaCarta / 2) - 19 };
+		int[] yPuntos3 = new int[] { posYdeCarta + (alturaCarta / 2) + 19, posYdeCarta + (alturaCarta / 2),
+				posYdeCarta + (alturaCarta / 2) + 19 };
+		int[] xPuntos4 = new int[] { posXdeCarta + (anchoCarta / 2) - 23, posXdeCarta + (anchoCarta / 2) - 15,
+				posXdeCarta + (anchoCarta / 2) - 7, posXdeCarta + (anchoCarta / 2) - 15 };
+		int[] xPuntos5 = new int[] { posXdeCarta + (anchoCarta / 2) + 23, posXdeCarta + (anchoCarta / 2) + 15,
+				posXdeCarta + (anchoCarta / 2) + 7, posXdeCarta + (anchoCarta / 2) + 15 };
+		int[] yPuntos4 = new int[] { posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) - 8,
+				posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) + 8 };
+
+		// Dibujar el patron central del reverso de las cartas
+		mesa.dibujarOvaloLleno(posXdeCarta + (anchoCarta / 2) - 7, posYdeCarta + (alturaCarta / 2) - 6, 13, 13,
+				color);
+		mesa.dibujarOvalo(posXdeCarta + (anchoCarta / 2) - 9, posYdeCarta + (alturaCarta / 2) - 8, 17, 17,
+				color);
+		mesa.dibujarPoligono(xPuntos1, yPuntos1, 4, color);
+		mesa.dibujarLinea(posXdeCarta + (anchoCarta / 2) - 23, posYdeCarta + (alturaCarta / 2) - 4,
+				posXdeCarta + (anchoCarta / 2) + 22, posYdeCarta + (alturaCarta / 2) - 4, color);
+		mesa.dibujarLinea(posXdeCarta + (anchoCarta / 2) - 27, posYdeCarta + (alturaCarta / 2),
+				posXdeCarta + (anchoCarta / 2) + 25, posYdeCarta + (alturaCarta / 2), color);
+		mesa.dibujarLinea(posXdeCarta + (anchoCarta / 2) - 23, posYdeCarta + (alturaCarta / 2) + 4,
+				posXdeCarta + (anchoCarta / 2) + 22, posYdeCarta + (alturaCarta / 2) + 4, color);
+		mesa.dibujarPoligono(xPuntos2, yPuntos2, 3, color);
+		mesa.dibujarPoligono(xPuntos2, yPuntos3, 3, color);
+		mesa.dibujarPoligono(xPuntos3, yPuntos2, 3, color);
+		mesa.dibujarPoligono(xPuntos3, yPuntos3, 3, color);
+		mesa.dibujarPoligonoLleno(xPuntos4, yPuntos4, 4, color);
+		mesa.dibujarPoligonoLleno(xPuntos5, yPuntos4, 4, color);
+
+		// Arreglos para las coordenadas de los rombos de los patrones superiores e
+		// inferiores
+		int[] xPuntos6 = new int[] { posXdeCarta + (anchoCarta / 2) - 17, posXdeCarta + (anchoCarta / 2) - 12,
+				posXdeCarta + (anchoCarta / 2) - 7, posXdeCarta + (anchoCarta / 2) - 12 };
+		int[] xPuntos7 = new int[] { posXdeCarta + (anchoCarta / 2) + 17, posXdeCarta + (anchoCarta / 2) + 12,
+				posXdeCarta + (anchoCarta / 2) + 7, posXdeCarta + (anchoCarta / 2) + 12 };
+		int[] yPuntos6 = new int[] { posYdeCarta + 14, posYdeCarta + 9,
+				posYdeCarta + 14, posYdeCarta + 19 };
+		int[] yPuntos7 = new int[] { posYdeCarta + alturaCarta - 16, posYdeCarta + alturaCarta - 21,
+				posYdeCarta + alturaCarta - 16, posYdeCarta + alturaCarta - 11 };
+
+		// Dibujar el patron superior del reverso de las cartas
+		mesa.dibujarOvaloLleno(posXdeCarta + (anchoCarta / 2) - 4, posYdeCarta + 11, 7, 7,
+				color);
+		mesa.dibujarOvalo(posXdeCarta + (anchoCarta / 2) - 6, posYdeCarta + 9, 11, 11,
+				color);
+		mesa.dibujarPoligonoLleno(xPuntos6, yPuntos6, 4, color);
+		mesa.dibujarPoligonoLleno(xPuntos7, yPuntos6, 4, color);
+
+		// Dibujar el patron inferior del reverso de las cartas
+		mesa.dibujarOvaloLleno(posXdeCarta + (anchoCarta / 2) - 4, posYdeCarta + alturaCarta - 19, 7, 7,
+				color);
+		mesa.dibujarOvalo(posXdeCarta + (anchoCarta / 2) - 6, posYdeCarta + alturaCarta - 21, 11, 11,
+				color);
+		mesa.dibujarPoligonoLleno(xPuntos6, yPuntos7, 4, color);
+		mesa.dibujarPoligonoLleno(xPuntos7, yPuntos7, 4, color);
+	}
+
 	public static void main(String[] args) {
 		// Resolución de la ventana donde se ejecutará el juego de BlackJack
 		int alturaCarta = 108;
@@ -111,16 +189,16 @@ public class Cartas {
 		mesa.dibujarOvaloLleno(11, -(anchoMesa / 2), anchoMesa - 20, anchoMesa - 20, Colores.GREEN);
 
 		// Cartas del crupier
-		dibujarCarta(mesa, (anchoMesa / 2) - 174, 20, alturaCarta, anchoCarta, "Picas", "Q");
-		dibujarCarta(mesa, (anchoMesa / 2) - 82, 20, alturaCarta, anchoCarta, "Diamantes", "2");
-		dibujarCarta(mesa, (anchoMesa / 2) + 10, 20, alturaCarta, anchoCarta, "Tréboles", "6");
-		dibujarCarta(mesa, (anchoMesa / 2) + 102, 20, alturaCarta, anchoCarta, "Corazones", "10");
+		dibujarCartaVisible(mesa, (anchoMesa / 2) - 174, 20, alturaCarta, anchoCarta, "Picas", "Q");
+		dibujarCartaVolteada(mesa, (anchoMesa / 2) - 82, 20, alturaCarta, anchoCarta);
+		dibujarCartaVolteada(mesa, (anchoMesa / 2) + 10, 20, alturaCarta, anchoCarta);
+		dibujarCartaVolteada(mesa, (anchoMesa / 2) + 102, 20, alturaCarta, anchoCarta);
 
 		// Cartas del jugador
-		dibujarCarta(mesa, (anchoMesa / 2) - 174, 280, alturaCarta, anchoCarta, "Picas", "J");
-		dibujarCarta(mesa, (anchoMesa / 2) - 82, 280, alturaCarta, anchoCarta, "Diamantes", "A");
-		dibujarCarta(mesa, (anchoMesa / 2) + 10, 280, alturaCarta, anchoCarta, "Tréboles", "K");
-		dibujarCarta(mesa, (anchoMesa / 2) + 102, 280, alturaCarta, anchoCarta, "Corazones", "Joker");
+		dibujarCartaVisible(mesa, (anchoMesa / 2) - 174, 280, alturaCarta, anchoCarta, "Picas", "J");
+		dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 280, alturaCarta, anchoCarta, "Diamantes", "A");
+		dibujarCartaVisible(mesa, (anchoMesa / 2) + 10, 280, alturaCarta, anchoCarta, "Tréboles", "Joker");
+		dibujarCartaVisible(mesa, (anchoMesa / 2) + 102, 280, alturaCarta, anchoCarta, "Corazones", "10");
 
 		mesa.mostrar();
 	}
