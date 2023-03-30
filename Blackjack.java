@@ -115,7 +115,7 @@ public class Blackjack {
     //@ ensures 2 <= \result || \result < 31 || \result == puntosMano ;
     public static /*@ pure @*/ int valorMano(/*@ non_null */ Carta /*@ non_null */[] manoJugador, int numCartasMano, int puntosMano) {
         puntosMano = 0;
-        
+
         //@ maintaining 0 <= numCartasMano <= manoJugador.length;
         //@ maintaining (\forall int k; 0 <= k && k < numCartasMano; manoJugador[k].ordinal() % 14 >= 1 || manoJugador[k].ordinal() % 14 <= 11);
         //@ decreases numCartasMano;
@@ -127,7 +127,7 @@ public class Blackjack {
                 puntosMano = (manoJugador[numCartasMano].ordinal() % 14) + 1 + puntosMano;
             else if (manoJugador[numCartasMano].ordinal() % 14 <= 12)
                 puntosMano = 10 + puntosMano ;
-            else 
+            else
                 puntosMano = 11 + puntosMano;
             //@ assert puntosMano >= 2 || puntosMano <= 31;
         }
