@@ -6,6 +6,19 @@ public class Cartas {
 	 * Metodo con el que se mostrara graficamente las cartas visibles que vayan
 	 * apareciendo en la mano del jugador y en la del crupier
 	 */
+	//@ requires mesa != null;
+	//@ requires 0 < mesa.XMAX < Integer.MAX_VALUE;
+	//@ requires 0 < mesa.YMAX < Integer.MAX_VALUE;
+	//@ requires 0 <= (posXdeCarta + 4) < Integer.MAX_VALUE;
+	//@ requires 0 <= (posYdeCarta + 5) < Integer.MAX_VALUE;
+	//@ requires 30 <= alturaCarta <= 10000;
+	//@ requires 30 <= anchoCarta <= 10000;
+	//@ requires (posXdeCarta + anchoCarta) < Integer.MAX_VALUE;
+	//@ requires (posYdeCarta + alturaCarta) < Integer.MAX_VALUE;
+	//@ requires (posXdeCarta + (anchoCarta / 2) + 25) < Integer.MAX_VALUE;
+	//@ requires (posYdeCarta + (alturaCarta / 2) + 18) < Integer.MAX_VALUE;
+	//@ requires paloCarta.length() > 0;
+	//@ requires nombreCarta.length() > 0;
 	public static void dibujarCartaVisible(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta,
 			int alturaCarta, int anchoCarta, String paloCarta, String nombreCarta) {
 		// Dibujar el rectángulo externo e interno de la carta
@@ -100,6 +113,17 @@ public class Cartas {
 	 * Metodo con el que se mostrara graficamente las cartas volteadas que vayan
 	 * apareciendo en la mano del crupier
 	 */
+	//@ requires mesa != null;
+	//@ requires 0 < mesa.XMAX < Integer.MAX_VALUE;
+	//@ requires 0 < mesa.YMAX < Integer.MAX_VALUE;
+	//@ requires 0 <= (posXdeCarta + 4) < Integer.MAX_VALUE;
+	//@ requires 0 <= (posYdeCarta + 5) < Integer.MAX_VALUE;
+	//@ requires 30 <= alturaCarta <= 10000;
+	//@ requires 30 <= anchoCarta <= 10000;
+	//@ requires (posXdeCarta + anchoCarta) < Integer.MAX_VALUE;
+	//@ requires (posYdeCarta + alturaCarta) < Integer.MAX_VALUE;
+	//@ requires (posXdeCarta + (anchoCarta / 2) + 25) < Integer.MAX_VALUE;
+	//@ requires (posYdeCarta + (alturaCarta / 2) + 18) < Integer.MAX_VALUE;
 	public static void dibujarCartaVolteada(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta,
 			int alturaCarta, int anchoCarta) {
 		// Dibujar el rectangulo externo e interno de la carta volteada
