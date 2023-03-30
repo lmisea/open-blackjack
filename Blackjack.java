@@ -1,5 +1,6 @@
 import java.io.Console;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Blackjack {
     // Creacion de todas las posibles cartas
@@ -81,24 +82,26 @@ public class Blackjack {
     // Función Obtener monto de la apuesta
 
     //@ requires credito >= 10 && credito < Integer.MAX_VALUE / 2;
-    //@ ensures \result >= 10 && \result <= credito;
-    public static int obtenerApuesta(int credito, Console con) {
+    //@ ensures \result >= 10 || \result <= credito;
+    public static /*@ non_null */ int obtenerApuesta(int credito) {
         int i = 0;
-        int apuesta = Integer.parseInt(con.readLine("Para empezar la partida ingresa el monto ha apostar: "));
-        //@ assert String.valueOf(apuesta) != null;
+        Scanner entrada = new Scanner(System.in);
+        System.out.println("Para empezar la partida ingresa el monto ha apostar: ");
+        int apuesta = entrada.nextInt();
 
         //@ maintaining 0 <= i <= 5;
         //@ maintaining (\forall int k; 0 <= k && k < i; apuesta > credito || apuesta < 10 || apuesta <= credito || apuesta >= 10 );
         //@ decreases 5 - i;
         while (i < 5) {
             if (i == 4) {
-                System.out.println("Se le ha establecido la apuesta minima");
+                System.out.println("Se le ha establecido la apuesta minima : 10");
                 apuesta = 10;
                 break;
             } else if (apuesta > credito || apuesta < 10) {
-                apuesta = Integer.parseInt(con.readLine("Cantidad erronea, por favor ingrese otro monto: "));
+                System.out.println("Cantidad errónea, por favor ingrese otro monto: ");
+                apuesta = entrada.nextInt();
                 i++;
-            } else if (apuesta <= credito && apuesta >= 10) {
+            } else if (apuesta <= credito || apuesta >= 10) {
                 break;
             }
         }
@@ -107,23 +110,28 @@ public class Blackjack {
 
     // Función Determinar el valor de una mano
 
-    //@ requires 0 < manoJugador.length <= 21;
-    //@ requires 2 <= numCartasMano <= 21;
-    //@ ensures 2 <= \result <= 31;
-    public static /*@ pure @*/ int valorMano(Carta[] manoJugador, int numCartasMano) {
-        int i = 0;
-        int puntosMano = 0;
-
-        //@ maintaining 0 <= i <= numCartasMano;
-        //@ maintaining 2 <= numCartasMano <= 21;
-        //@ maintaining (\forall int k; 0 <= k && k < i; 2 <= puntosMano <= 31);
-        //@ decreases numCartasMano - i;
-        while (i < numCartasMano) {
-            //@ assume 0 < numCartasMano <= 21;
-            puntosMano += obtenerValorCarta(manoJugador[i]);
-            i++;
+    //@ requires 0 <= numCartasMano <= manoJugador.length;
+    //@ requires 0 <= puntosMano < Integer.MAX_VALUE;
+    //@ ensures 2 <= \result || \result < 31 || \result == puntosMano ;
+    public static /*@ pure @*/ int valorMano(/*@ non_null */ Carta /*@ non_null */[] manoJugador, int numCartasMano, int puntosMano) {
+        puntosMano = 0;
+        
+        //@ maintaining 0 <= numCartasMano <= manoJugador.length;
+        //@ maintaining (\forall int k; 0 <= k && k < numCartasMano; manoJugador[k].ordinal() % 14 >= 1 || manoJugador[k].ordinal() % 14 <= 11);
+        //@ decreases numCartasMano;
+        while (numCartasMano != 0) {
+            numCartasMano -= 1;
+            //@ assume 0 <= numCartasMano <= 21;
+            //@ assume 0 <= puntosMano < 31;
+            if (manoJugador[numCartasMano].ordinal() % 14 <= 9)
+                puntosMano = (manoJugador[numCartasMano].ordinal() % 14) + 1 + puntosMano;
+            else if (manoJugador[numCartasMano].ordinal() % 14 <= 12)
+                puntosMano = 10 + puntosMano ;
+            else 
+                puntosMano = 11 + puntosMano;
+            //@ assert puntosMano >= 2 || puntosMano <= 31;
         }
-        //@ assert puntosMano >= 2 && puntosMano <= 31;
+        //@ assert puntosMano >= 2 || puntosMano <= 31;
         return puntosMano;
     }
 
@@ -154,7 +162,7 @@ public class Blackjack {
         Console con = System.console();
         String nombre = con.readLine("Ingrese su nombre: ");
         System.out.println("Es un placer tenerte aqui, " + nombre);
-        int apuesta = obtenerApuesta(crédito, con);
+        int apuesta = obtenerApuesta(crédito);
 
         int i = 0;
 
@@ -164,8 +172,8 @@ public class Blackjack {
             i++;
         }
 
-        puntosJugador = valorMano(jugador, 2);
-        puntosCrupier = valorMano(crupier, 2);
+        puntosJugador = valorMano(jugador, 2, puntosJugador);
+        puntosCrupier = valorMano(crupier, 2, puntosCrupier);
         System.out.println("Punto de la carta descubierta del crupier: " + obtenerValorCarta(crupier[0]));
         System.out.println("Puntos actuales: " + puntosJugador);
         String opcion = con.readLine("Escriba cualquier caracter para terminar el juego: ");
