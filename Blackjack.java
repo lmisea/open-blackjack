@@ -84,23 +84,26 @@ public class Blackjack {
 
     //@ requires credito >= 10 && credito < Integer.MAX_VALUE / 2;
     //@ ensures \result >= 10 || \result <= credito;
-    public static /*@ non_null */ int obtenerApuesta(int credito) {
+    public static /*@ non_null */ int obtenerApuesta(int credito, String nombre) {
         int i = 0;
         Scanner entrada = new Scanner(System.in);
-        System.out.println("Para empezar la partida ingresa el monto ha apostar: ");
+        System.out.print(nombre + ", por favor ingresa el monto que te gustaría apostar en esta mano: ");
         int apuesta = entrada.nextInt();
+        System.out.println("");
 
         //@ maintaining 0 <= i <= 5;
         //@ maintaining (\forall int k; 0 <= k && k < i; apuesta > credito || apuesta < 10 || apuesta <= credito || apuesta >= 10 );
         //@ decreases 5 - i;
         while (i < 5) {
             if (i == 4) {
-                System.out.println("Se le ha establecido la apuesta minima : 10");
+                System.out.println("Se le ha establecido la apuesta minima: 10 creditos.");
                 apuesta = 10;
                 break;
             } else if (apuesta > credito || apuesta < 10) {
-                System.out.println("Cantidad errónea, por favor ingrese otro monto: ");
+                System.out.println("Cantidad invalida. La apuesta debe ser mayor igual a 10 y menor igual al numero de creditos.");
+                System.out.print(nombre + ", por favor ingresa otro monto que desees apostar: ");
                 apuesta = entrada.nextInt();
+                System.out.println("");
                 i++;
             } else if (apuesta <= credito || apuesta >= 10) {
                 break;
@@ -136,82 +139,11 @@ public class Blackjack {
         return puntosMano;
     }
 
-    public static void main(String[] args) {
-        // Elementos de sistema logico
-        Carta mazo[] = new Carta[] {
-            Carta.AS_PICAS, Carta.DOS_PICAS, Carta.TRES_PICAS, Carta.CUATRO_PICAS,
-            Carta.CINCO_PICAS, Carta.SEIS_PICAS, Carta.SIETE_PICAS, Carta.OCHO_PICAS,
-            Carta.NUEVE_PICAS, Carta.DIEZ_PICAS, Carta.J_PICAS, Carta.Q_PICAS,
-            Carta.K_PICAS, Carta.COMODÍN_PICAS, Carta.AS_DIAMANTE, Carta.DOS_DIAMANTE,
-            Carta.TRES_DIAMANTE, Carta.CUATRO_DIAMANTE, Carta.CINCO_DIAMANTE, Carta.SEIS_DIAMANTE,
-            Carta.SIETE_DIAMANTE, Carta.OCHO_DIAMANTE, Carta.NUEVE_DIAMANTE, Carta.DIEZ_DIAMANTE,
-            Carta.J_DIAMANTE, Carta.Q_DIAMANTE, Carta.K_DIAMANTE, Carta.COMODÍN_DIAMANTE,
-            Carta.AS_TREBOL, Carta.DOS_TREBOL, Carta.TRES_TREBOL, Carta.CUATRO_TREBOL,
-            Carta.CINCO_TREBOL, Carta.SEIS_TREBOL, Carta.SIETE_TREBOL, Carta.OCHO_TREBOL,
-            Carta.NUEVE_TREBOL, Carta.DIEZ_TREBOL, Carta.J_TREBOL, Carta.Q_TREBOL,
-            Carta.K_TREBOL, Carta.COMODÍN_TREBOL, Carta.AS_CORAZON, Carta.DOS_CORAZON,
-            Carta.TRES_CORAZON, Carta.CUATRO_CORAZON, Carta.CINCO_CORAZON, Carta.SEIS_CORAZON,
-            Carta.SIETE_CORAZON, Carta.OCHO_CORAZON, Carta.NUEVE_CORAZON, Carta.DIEZ_CORAZON,
-            Carta.J_CORAZON, Carta.Q_CORAZON, Carta.K_CORAZON, Carta.COMODÍN_CORAZON
-        };
-        Console con = System.console();
-        Carta jugador[] = new Carta[21];
-        Carta crupier[] = new Carta[17];
-        int crédito = 100;
-        int puntosJugador = 0;
-        int puntosCrupier = 0;
-        // Elementos del sistema graficos
-    
-        // Resolución de la ventana donde se ejecutará el juego de BlackJack
-		int alturaCarta = 108;
-		int anchoCarta = 72;
-		int alturaMesa = 774;
-		int anchoMesa = 1278;
-
-		// Panel de la Máquina de Trazados. El color gris crea un fondo agradable
-		MaquinaDeTrazados mesa = new MaquinaDeTrazados(anchoMesa, alturaMesa, "OpenJML BlackJack", Colores.GRAY);
-        // Semicírculo verde que imita una mesa de BlackJack real con un borde oscuro
-        mesa.dibujarOvaloLleno(1, -(anchoMesa / 2), anchoMesa, anchoMesa, Colores.DARK_GRAY);
-        mesa.dibujarOvaloLleno(11, -(anchoMesa / 2), anchoMesa - 20, anchoMesa - 20, Colores.GREEN);
-        mesa.mostrar();
-
-        String nombre = con.readLine("Ingrese su nombre: ");
-        System.out.println("Es un placer tenerte aqui, " + nombre);
-        int apuesta = obtenerApuesta(crédito);
-
-        int i = 0;
-
-        while (i < 2) {
-            jugador[i] = darCarta(mazo);
-            crupier[i] = darCarta(mazo);
-            i++;
-        }
-        // Cartas del crupier
-		Cartas.mesa.dibujarCartaVisible(mesa, (anchoMesa / 2) - 174, 20, alturaCarta, anchoCarta, obtenerPaloCarta(crupier[0]), obtenerValorCarta(crupier[0]));
-		Cartas.mesa.dibujarCartaVolteada(mesa, (anchoMesa / 2) - 82, 20, alturaCarta, anchoCarta);
-
-		// Cartas del jugador
-		Cartas.mesa.dibujarCartaVisible(mesa, (anchoMesa / 2) - 174, 280, alturaCarta, anchoCarta, obtenerPaloCarta(jugador[0]),  obtenerValorCarta(jugador[0]));
-		Cartas.mesa.dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 280, alturaCarta, anchoCarta, obtenerPaloCarta(jugador[1]),  obtenerValorCarta(jugador[1]));
-        mesa.repintar();
-
-        puntosJugador = valorMano(jugador, 2, puntosJugador);
-        puntosCrupier = valorMano(crupier, 2, puntosCrupier);
-        System.out.println("Punto de la carta descubierta del crupier: " + obtenerValorCarta(crupier[0]));
-        System.out.println("Puntos actuales: " + puntosJugador);
-        String opcion = con.readLine("Escriba cualquier caracter para terminar el juego: ");
-
-    }
-}
-
-class Cartas {
-
 	/**
 	 * Metodo con el que se mostrara graficamente las cartas visibles que vayan
 	 * apareciendo en la mano del jugador y en la del crupier
 	 */
-
-    //@ requires mesa != null;
+	//@ requires mesa != null;
 	//@ requires 0 < mesa.XMAX < Integer.MAX_VALUE;
 	//@ requires 0 < mesa.YMAX < Integer.MAX_VALUE;
 	//@ requires 0 <= (posXdeCarta + 4) < Integer.MAX_VALUE;
@@ -223,7 +155,7 @@ class Cartas {
 	//@ requires (posXdeCarta + (anchoCarta / 2) + 25) < Integer.MAX_VALUE;
 	//@ requires (posYdeCarta + (alturaCarta / 2) + 18) < Integer.MAX_VALUE;
 	//@ requires paloCarta.length() > 0;
-	//@ requires nombreCarta.length() > 0
+	//@ requires nombreCarta.length() > 0;
 	public static void dibujarCartaVisible(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta,
 			int alturaCarta, int anchoCarta, String paloCarta, String nombreCarta) {
 		// Dibujar el rectángulo externo e interno de la carta
@@ -258,8 +190,8 @@ class Cartas {
 					posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) + 18 };
 			mesa.dibujarPoligonoLleno(xPuntos, yPuntos, 4, color);
 
-		} else if (paloCarta.equals("Tréboles")) {
-			// Dibujar el símbolo de Tréboles
+		} else if (paloCarta.equals("Treboles")) {
+			// Dibujar el símbolo de Treboles
 			int[] xPuntos = new int[] { posXdeCarta + (anchoCarta / 2) - 6, posXdeCarta + (anchoCarta / 2),
 					posXdeCarta + (anchoCarta / 2) + 6 };
 			int[] yPuntos = new int[] { posYdeCarta + (alturaCarta / 2) + 18, posYdeCarta + (alturaCarta / 2) + 12,
@@ -318,7 +250,7 @@ class Cartas {
 	 * Metodo con el que se mostrara graficamente las cartas volteadas que vayan
 	 * apareciendo en la mano del crupier
 	 */
-    //@ requires mesa != null;
+	//@ requires mesa != null;
 	//@ requires 0 < mesa.XMAX < Integer.MAX_VALUE;
 	//@ requires 0 < mesa.YMAX < Integer.MAX_VALUE;
 	//@ requires 0 <= (posXdeCarta + 4) < Integer.MAX_VALUE;
@@ -402,4 +334,77 @@ class Cartas {
 		mesa.dibujarPoligonoLleno(xPuntos6, yPuntos7, 4, color);
 		mesa.dibujarPoligonoLleno(xPuntos7, yPuntos7, 4, color);
 	}
+
+    public static void main(String[] args) {
+        // Elementos del sistema logico del programa
+        Carta mazo[] = new Carta[] {
+            Carta.AS_PICAS, Carta.DOS_PICAS, Carta.TRES_PICAS, Carta.CUATRO_PICAS,
+            Carta.CINCO_PICAS, Carta.SEIS_PICAS, Carta.SIETE_PICAS, Carta.OCHO_PICAS,
+            Carta.NUEVE_PICAS, Carta.DIEZ_PICAS, Carta.J_PICAS, Carta.Q_PICAS,
+            Carta.K_PICAS, Carta.COMODÍN_PICAS, Carta.AS_DIAMANTE, Carta.DOS_DIAMANTE,
+            Carta.TRES_DIAMANTE, Carta.CUATRO_DIAMANTE, Carta.CINCO_DIAMANTE, Carta.SEIS_DIAMANTE,
+            Carta.SIETE_DIAMANTE, Carta.OCHO_DIAMANTE, Carta.NUEVE_DIAMANTE, Carta.DIEZ_DIAMANTE,
+            Carta.J_DIAMANTE, Carta.Q_DIAMANTE, Carta.K_DIAMANTE, Carta.COMODÍN_DIAMANTE,
+            Carta.AS_TREBOL, Carta.DOS_TREBOL, Carta.TRES_TREBOL, Carta.CUATRO_TREBOL,
+            Carta.CINCO_TREBOL, Carta.SEIS_TREBOL, Carta.SIETE_TREBOL, Carta.OCHO_TREBOL,
+            Carta.NUEVE_TREBOL, Carta.DIEZ_TREBOL, Carta.J_TREBOL, Carta.Q_TREBOL,
+            Carta.K_TREBOL, Carta.COMODÍN_TREBOL, Carta.AS_CORAZON, Carta.DOS_CORAZON,
+            Carta.TRES_CORAZON, Carta.CUATRO_CORAZON, Carta.CINCO_CORAZON, Carta.SEIS_CORAZON,
+            Carta.SIETE_CORAZON, Carta.OCHO_CORAZON, Carta.NUEVE_CORAZON, Carta.DIEZ_CORAZON,
+            Carta.J_CORAZON, Carta.Q_CORAZON, Carta.K_CORAZON, Carta.COMODÍN_CORAZON
+        };
+        Console con = System.console();
+        Carta jugador[] = new Carta[21];
+        Carta crupier[] = new Carta[17];
+        int crédito = 100;
+        int puntosJugador = 0;
+        int puntosCrupier = 0;
+
+        // Elementos de la interfaz grafica
+
+        // Dimensiones de las cartas
+		int alturaCarta = 108;
+		int anchoCarta = 72;
+        // Resolucion de la ventana donde se ejecutara el juego de BlackJack
+		int alturaMesa = 774;
+		int anchoMesa = 1278;
+
+		// Panel de la Maquina de Trazados. El color gris crea un fondo agradable
+		MaquinaDeTrazados mesa = new MaquinaDeTrazados(anchoMesa, alturaMesa, "OpenJML BlackJack", Colores.GRAY);
+
+        // Semicirculo verde que imita una mesa de BlackJack real con un borde oscuro
+        mesa.dibujarOvaloLleno(1, -(anchoMesa / 2), anchoMesa, anchoMesa, Colores.DARK_GRAY);
+        mesa.dibujarOvaloLleno(11, -(anchoMesa / 2), anchoMesa - 20, anchoMesa - 20, Colores.GREEN);
+
+        String nombre = con.readLine("Por favor, ingrese su nombre: ");
+        System.out.println("Es un placer tenerte aqui, " + nombre + ".");
+        System.out.println("");
+        System.out.println("Posees 100 creditos por empezar a jugar. La apuesta minima por mano son 10 creditos.");
+        int apuesta = obtenerApuesta(crédito, nombre);
+
+        int i = 0;
+
+        while (i < 2) {
+            jugador[i] = darCarta(mazo);
+            crupier[i] = darCarta(mazo);
+            i++;
+        }
+        // Cartas del crupier
+		dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 20, alturaCarta, anchoCarta, obtenerPaloCarta(crupier[0]), obtenerNombreCarta(crupier[0]));
+		dibujarCartaVolteada(mesa, (anchoMesa / 2) + 10, 20, alturaCarta, anchoCarta);
+
+		// Cartas del jugador
+		dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 280, alturaCarta, anchoCarta, obtenerPaloCarta(jugador[0]),  obtenerNombreCarta(jugador[0]));
+		dibujarCartaVisible(mesa, (anchoMesa / 2) + 10, 280, alturaCarta, anchoCarta, obtenerPaloCarta(jugador[1]),  obtenerNombreCarta(jugador[1]));
+        mesa.mostrar();
+
+        puntosJugador = valorMano(jugador, 2, puntosJugador);
+        puntosCrupier = valorMano(crupier, 2, puntosCrupier);
+        System.out.println("Valor de la carta descubierta del crupier: " + obtenerValorCarta(crupier[0]));
+        System.out.println("Valor de la mano actual: " + puntosJugador);
+        System.out.println("");
+        String opcion = con.readLine("Ingrese cualquier caracter para terminar el juego: ");
+        mesa.terminar();
+
+    }
 }

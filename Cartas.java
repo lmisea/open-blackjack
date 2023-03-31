@@ -53,8 +53,8 @@ public class Cartas {
 					posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) + 18 };
 			mesa.dibujarPoligonoLleno(xPuntos, yPuntos, 4, color);
 
-		} else if (paloCarta.equals("Tréboles")) {
-			// Dibujar el símbolo de Tréboles
+		} else if (paloCarta.equals("Treboles")) {
+			// Dibujar el símbolo de Treboles
 			int[] xPuntos = new int[] { posXdeCarta + (anchoCarta / 2) - 6, posXdeCarta + (anchoCarta / 2),
 					posXdeCarta + (anchoCarta / 2) + 6 };
 			int[] yPuntos = new int[] { posYdeCarta + (alturaCarta / 2) + 18, posYdeCarta + (alturaCarta / 2) + 12,
@@ -221,7 +221,7 @@ public class Cartas {
 		// Cartas del jugador
 		dibujarCartaVisible(mesa, (anchoMesa / 2) - 174, 280, alturaCarta, anchoCarta, "Picas", "J");
 		dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 280, alturaCarta, anchoCarta, "Diamantes", "A");
-		dibujarCartaVisible(mesa, (anchoMesa / 2) + 10, 280, alturaCarta, anchoCarta, "Tréboles", "Joker");
+		dibujarCartaVisible(mesa, (anchoMesa / 2) + 10, 280, alturaCarta, anchoCarta, "Treboles", "Joker");
 		dibujarCartaVisible(mesa, (anchoMesa / 2) + 102, 280, alturaCarta, anchoCarta, "Corazones", "10");
 
 		mesa.mostrar();
