@@ -4,8 +4,7 @@ import java.util.Scanner;
 import java.awt.Font;
 
 public class Blackjack {
-    // Creacion de todas las posibles cartas
-
+    // Creacion de un enum con todas las posibles cartas
     enum Carta {
         AS_PICAS, DOS_PICAS, TRES_PICAS, CUATRO_PICAS,
         CINCO_PICAS, SEIS_PICAS, SIETE_PICAS, OCHO_PICAS,
@@ -28,6 +27,10 @@ public class Blackjack {
 
     // Metodos para obtener informacion de las cartas que se repartan aleatoriamente
 
+    /**
+	 * Metodo con el que se obtendra el palo de cualquier carta
+     * perteneciente al enum Carta
+     */
     //@ requires carta != null;
     //@ ensures \result == "Picas" || \result == "Diamantes" || \result == "Treboles" || \result == "Corazones";
     public static /*@ pure @*/ String obtenerPaloCarta(Carta carta) {
@@ -41,6 +44,10 @@ public class Blackjack {
             return "Corazones";
     }
 
+    /**
+	 * Metodo con el que se obtendra el valor de cualquier carta
+     * perteneciente al enum Carta
+     */
     //@ requires carta != null;
     //@ ensures 0 < \result <= 11;
     public static /*@ pure @*/ int obtenerValorCarta(Carta carta) {
@@ -52,6 +59,10 @@ public class Blackjack {
             return 11;
     }
 
+    /**
+	 * Metodo con el que se obtendra el nombre de cualquier carta perteneciente
+     * al enum Carta. El nombre de una carta es lo que va en sus esquinas.
+     */
     //@ requires carta != null;
     //@ ensures \result.equals("A") || \result.equals("J") || \result.equals("Q") || \result.equals("K") || \result.equals("Joker") || 2 <= Integer.parseInt(\result) <= 10;
     public static /*@ pure @*/ String obtenerNombreCarta(Carta carta) {
@@ -69,8 +80,9 @@ public class Blackjack {
             return "Joker";
     }
 
-    // Función Repartir una Carta
-
+    /**
+	 * Metodo con el que se repartira una de las 56 cartas al azar
+     */
     //@ requires baraja.length == 56;
     //@ ensures (\exists int i; 0 <= i && i < baraja.length; \result == baraja[i]);
     public static /*@ pure @*/ Carta darCarta(Carta[] baraja) {
@@ -80,40 +92,43 @@ public class Blackjack {
         return baraja[aleatorio];
     }
 
-    // Función Obtener monto de la apuesta
-
+    /**
+	 * Metodo que permite registrar el monto de la apuesta del jugador
+     * para la mano actual
+     */
     //@ requires credito >= 10 && credito < Integer.MAX_VALUE / 2;
-    //@ ensures \result >= 10 || \result <= credito;
+    //@ requires nombre.length() > 0;
+    //@ ensures 10 <= \result || \result <= credito;
     public static /*@ non_null */ int obtenerApuesta(int credito, String nombre) {
         int i = 0;
         Scanner entrada = new Scanner(System.in);
         System.out.print(nombre + ", por favor ingresa el monto que te gustaría apostar en esta mano: ");
         int apuesta = entrada.nextInt();
-        System.out.println("");
 
         //@ maintaining 0 <= i <= 5;
         //@ maintaining (\forall int k; 0 <= k && k < i; apuesta > credito || apuesta < 10 || apuesta <= credito || apuesta >= 10 );
         //@ decreases 5 - i;
         while (i < 5) {
             if (i == 4) {
-                System.out.println("Se le ha establecido la apuesta minima: 10 creditos.");
+                System.out.println("Se le ha establecido la apuesta minima : 10");
                 apuesta = 10;
                 break;
             } else if (apuesta > credito || apuesta < 10) {
                 System.out.println("Cantidad invalida. La apuesta debe ser mayor igual a 10 y menor igual al numero de creditos.");
                 System.out.print(nombre + ", por favor ingresa otro monto que desees apostar: ");
                 apuesta = entrada.nextInt();
-                System.out.println("");
                 i++;
-            } else if (apuesta <= credito || apuesta >= 10) {
+            } else if (apuesta <= credito && apuesta >= 10) {
                 break;
             }
         }
         return apuesta;
     }
 
-    // Función Determinar el valor de una mano
 
+    /**
+	 * Metodo que permite calcular el valor de la suma de las cartas de una mano
+     */
     //@ requires 0 <= numCartasMano <= manoJugador.length;
     //@ requires 0 <= puntosMano < Integer.MAX_VALUE;
     //@ ensures 2 <= \result || \result < 31 || \result == puntosMano ;
@@ -154,7 +169,7 @@ public class Blackjack {
 	//@ requires (posYdeCarta + alturaCarta) < Integer.MAX_VALUE;
 	//@ requires (posXdeCarta + (anchoCarta / 2) + 25) < Integer.MAX_VALUE;
 	//@ requires (posYdeCarta + (alturaCarta / 2) + 18) < Integer.MAX_VALUE;
-	//@ requires paloCarta.length() > 0;
+	//@ requires paloCarta.equals("Picas") || paloCarta.equals("Diamantes") || paloCarta.equals("Treboles") || paloCarta.equals("Corazones");
 	//@ requires nombreCarta.length() > 0;
 	public static void dibujarCartaVisible(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta,
 			int alturaCarta, int anchoCarta, String paloCarta, String nombreCarta) {
@@ -223,6 +238,7 @@ public class Blackjack {
 		// Escribir el nombre de la carta en las esquinas
 		int posXEsqInfIzquierda = posXdeCarta + anchoCarta - 24;
 		int posYEsqInfIzquierda = posYdeCarta + alturaCarta - 12;
+
 		mesa.configurarFuente("SansSerif", Font.BOLD, 18);
 		mesa.dibujarString(nombreCarta, posXdeCarta + 11, posYdeCarta + 24, color);
 		if (nombreCarta.equals("A")) {
@@ -336,7 +352,7 @@ public class Blackjack {
 	}
 
     public static void main(String[] args) {
-        // Elementos del sistema logico del programa
+        // Se crea un mazo con todas las 56 posibles cartas
         Carta mazo[] = new Carta[] {
             Carta.AS_PICAS, Carta.DOS_PICAS, Carta.TRES_PICAS, Carta.CUATRO_PICAS,
             Carta.CINCO_PICAS, Carta.SEIS_PICAS, Carta.SIETE_PICAS, Carta.OCHO_PICAS,
@@ -353,56 +369,80 @@ public class Blackjack {
             Carta.SIETE_CORAZON, Carta.OCHO_CORAZON, Carta.NUEVE_CORAZON, Carta.DIEZ_CORAZON,
             Carta.J_CORAZON, Carta.Q_CORAZON, Carta.K_CORAZON, Carta.COMODÍN_CORAZON
         };
+
+        // Se declaran e inicializan las variables basicas que se usaran en el programa
         Console con = System.console();
         Carta jugador[] = new Carta[21];
         Carta crupier[] = new Carta[17];
-        int crédito = 100;
+        int credito = 100;
         int puntosJugador = 0;
         int puntosCrupier = 0;
 
-        // Elementos de la interfaz grafica
-
-        // Dimensiones de las cartas
+        // Se especifican las dimensiones de las cartas
 		int alturaCarta = 108;
 		int anchoCarta = 72;
-        // Resolucion de la ventana donde se ejecutara el juego de BlackJack
+        // Se especifica la resolucion de la ventana de la interfaz grafica
 		int alturaMesa = 774;
 		int anchoMesa = 1278;
 
-		// Panel de la Maquina de Trazados. El color gris crea un fondo agradable
-		MaquinaDeTrazados mesa = new MaquinaDeTrazados(anchoMesa, alturaMesa, "OpenJML BlackJack", Colores.GRAY);
+		// Se crea el panel de la Maquina de Trazados. El color gris crea un fondo agradable
+		MaquinaDeTrazados mesa = new MaquinaDeTrazados(anchoMesa, alturaMesa, "BlackJack", Colores.GRAY);
 
         // Semicirculo verde que imita una mesa de BlackJack real con un borde oscuro
         mesa.dibujarOvaloLleno(1, -(anchoMesa / 2), anchoMesa, anchoMesa, Colores.DARK_GRAY);
         mesa.dibujarOvaloLleno(11, -(anchoMesa / 2), anchoMesa - 20, anchoMesa - 20, Colores.GREEN);
 
+        // Mensaje de bienvenida donde se le pregunta el nombre al jugador
+        System.out.println("¡Desafia a la computadora en Blackjack!");
+        System.out.println("Desarrollado por Isea, Luis (19-10175) y Prieto, Jesus (19-10211).");
+        System.out.println("");
         String nombre = con.readLine("Por favor, ingrese su nombre: ");
         System.out.println("Es un placer tenerte aqui, " + nombre + ".");
         System.out.println("");
+
+        // Se le explica al jugador el sistema de creditos y apuestas
+        // Luego se le pide al jugador que ingrese el monto de la apuesta usando su nombre
         System.out.println("Posees 100 creditos por empezar a jugar. La apuesta minima por mano son 10 creditos.");
-        int apuesta = obtenerApuesta(crédito, nombre);
+        int apuesta = obtenerApuesta(credito, nombre);
 
+        // Una vez se tiene el monto que aposto el jugador, se reparten las cartas al azar
         int i = 0;
-
         while (i < 2) {
             jugador[i] = darCarta(mazo);
             crupier[i] = darCarta(mazo);
             i++;
         }
-        // Cartas del crupier
-		dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 20, alturaCarta, anchoCarta, obtenerPaloCarta(crupier[0]), obtenerNombreCarta(crupier[0]));
-		dibujarCartaVolteada(mesa, (anchoMesa / 2) + 10, 20, alturaCarta, anchoCarta);
 
-		// Cartas del jugador
-		dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 280, alturaCarta, anchoCarta, obtenerPaloCarta(jugador[0]),  obtenerNombreCarta(jugador[0]));
-		dibujarCartaVisible(mesa, (anchoMesa / 2) + 10, 280, alturaCarta, anchoCarta, obtenerPaloCarta(jugador[1]),  obtenerNombreCarta(jugador[1]));
+        // Luego se dibujan las cartas del crupier
+		dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 50, alturaCarta, anchoCarta, obtenerPaloCarta(crupier[0]), obtenerNombreCarta(crupier[0]));
+		dibujarCartaVolteada(mesa, (anchoMesa / 2) + 10, 50, alturaCarta, anchoCarta);
+
+		// E inmediatamente se dibujan las cartas del jugador
+		dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 300, alturaCarta, anchoCarta, obtenerPaloCarta(jugador[0]),  obtenerNombreCarta(jugador[0]));
+		dibujarCartaVisible(mesa, (anchoMesa / 2) + 10, 300, alturaCarta, anchoCarta, obtenerPaloCarta(jugador[1]),  obtenerNombreCarta(jugador[1]));
         mesa.mostrar();
 
+        // Calculamos el valor de las manos en la mesa
         puntosJugador = valorMano(jugador, 2, puntosJugador);
         puntosCrupier = valorMano(crupier, 2, puntosCrupier);
+
+        // Se le muestra al jugador el valor de las cartas en la mesa en la interfaz grafica
+        mesa.configurarFuente("SansSerif", Font.BOLD, 18);
+		mesa.dibujarString("Carta descubierta del crupier: " + Integer.toString(obtenerValorCarta(crupier[0])), (anchoMesa / 2) - 160, 30, Colores.DARK_GRAY);
+        mesa.dibujarString("Mano actual: " + Integer.toString(puntosJugador), (anchoMesa / 2) - 82, 280, Colores.DARK_GRAY);
+
+        // Se le muestra al jugador en la interfaz grafica el numero de creditos totales
+        // que posee y tambien cuantos se apostaron en la mano actual
+        mesa.dibujarString("Creditos actuales: " + Integer.toString(credito), (anchoMesa / 2) - 410, 210, Colores.BLUE);
+        mesa.dibujarString("Creditos apostados: " + Integer.toString(apuesta), (anchoMesa / 2) + 190, 210, Colores.RED);
+
+        // Se le muestra al jugador el valor de las cartas en la mesa en la interfaz de texto
+        System.out.println("");
         System.out.println("Valor de la carta descubierta del crupier: " + obtenerValorCarta(crupier[0]));
         System.out.println("Valor de la mano actual: " + puntosJugador);
         System.out.println("");
+
+        // Se cierra el programa despues de mostrarle las cartas y la informacion basica al jugador
         String opcion = con.readLine("Ingrese cualquier caracter para terminar el juego: ");
         mesa.terminar();
 
