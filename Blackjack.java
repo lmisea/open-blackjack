@@ -377,7 +377,7 @@ public class Blackjack {
         int credito = 100;
         int puntosJugador = 0;
         int puntosCrupier = 0;
-
+		int opcion = 0; 
         // Se especifican las dimensiones de las cartas
 		int alturaCarta = 108;
 		int anchoCarta = 72;
@@ -446,5 +446,46 @@ public class Blackjack {
         String opcion = con.readLine("Ingrese cualquier caracter para terminar el juego: ");
         mesa.terminar();
 
+		// Acciones del jugador 
+		if (puntosJugador == 21 && puntosCrupier != 21) {
+			credito = credito + (int) apuesta * 3/2;
+			// Indicar que gano el jugador
+		} else if (puntosJugador == 21 && puntosCrupier == 21) {
+			// decir al jugador que hubo empate
+		} else if (puntosJugador <= 21) {
+			// mostrar opciones 
+			if (opcion == 1){
+				// el jugador pide una carta
+				jugador[i] = darCarta(mazo);
+				//mostrar estado
+			}else if (opcion == 2) {
+				// El jugador se planta
+			}else if (opcion == 3){
+				// El jugador dobla la apuesta
+			}else if (opcion == 4) {
+				// El jugador decide salirse del juego 
+			}else {
+				//producir mensaje de error
+			}
+		}else {
+			//el jugador sobrepaso los 21 
+		}
+		//Acciones del crupier
+		if (puntosCrupier < 17) {
+			//dar carta
+		} else if (17 <= puntosCrupier && puntosCrupier <= 21) {
+			//plantarse
+		} else {
+			// presentar perdida del crupier
+		}
+
+		//Decision del Juego
+		if (puntosCrupier == puntosJugador) {
+			// retornar la apuesta 
+		} else if (puntosJugador > puntosCrupier) {
+			//jugador gana con una relacion 1:1
+		} else {
+			//actualizar estado y componente grafico
+		}
     }
 }
