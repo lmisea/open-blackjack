@@ -378,6 +378,9 @@ public class Blackjack {
         int puntosJugador = 0;
         int puntosCrupier = 0;
 		int opcion = 0; 
+		boolean salir_juego = false;
+		boolean fin_mano = false;
+
         // Se especifican las dimensiones de las cartas
 		int alturaCarta = 108;
 		int anchoCarta = 72;
@@ -403,89 +406,98 @@ public class Blackjack {
         // Se le explica al jugador el sistema de creditos y apuestas
         // Luego se le pide al jugador que ingrese el monto de la apuesta usando su nombre
         System.out.println("Posees 100 creditos por empezar a jugar. La apuesta minima por mano son 10 creditos.");
-        int apuesta = obtenerApuesta(credito, nombre);
+        
+		while (!salir_juego && credito >= 10) {
+			int apuesta = obtenerApuesta(credito, nombre);
 
-        // Una vez se tiene el monto que aposto el jugador, se reparten las cartas al azar
-        int i = 0;
-        while (i < 2) {
-            jugador[i] = darCarta(mazo);
-            crupier[i] = darCarta(mazo);
-            i++;
-        }
-
-        // Luego se dibujan las cartas del crupier
-		dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 50, alturaCarta, anchoCarta, obtenerPaloCarta(crupier[0]), obtenerNombreCarta(crupier[0]));
-		dibujarCartaVolteada(mesa, (anchoMesa / 2) + 10, 50, alturaCarta, anchoCarta);
-
-		// E inmediatamente se dibujan las cartas del jugador
-		dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 300, alturaCarta, anchoCarta, obtenerPaloCarta(jugador[0]),  obtenerNombreCarta(jugador[0]));
-		dibujarCartaVisible(mesa, (anchoMesa / 2) + 10, 300, alturaCarta, anchoCarta, obtenerPaloCarta(jugador[1]),  obtenerNombreCarta(jugador[1]));
-        mesa.mostrar();
-
-        // Calculamos el valor de las manos en la mesa
-        puntosJugador = valorMano(jugador, 2, puntosJugador);
-        puntosCrupier = valorMano(crupier, 2, puntosCrupier);
-
-        // Se le muestra al jugador el valor de las cartas en la mesa en la interfaz grafica
-        mesa.configurarFuente("SansSerif", Font.BOLD, 18);
-		mesa.dibujarString("Carta descubierta del crupier: " + Integer.toString(obtenerValorCarta(crupier[0])), (anchoMesa / 2) - 160, 30, Colores.DARK_GRAY);
-        mesa.dibujarString("Mano actual: " + Integer.toString(puntosJugador), (anchoMesa / 2) - 82, 280, Colores.DARK_GRAY);
-
-        // Se le muestra al jugador en la interfaz grafica el numero de creditos totales
-        // que posee y tambien cuantos se apostaron en la mano actual
-        mesa.dibujarString("Creditos actuales: " + Integer.toString(credito), (anchoMesa / 2) - 410, 210, Colores.BLUE);
-        mesa.dibujarString("Creditos apostados: " + Integer.toString(apuesta), (anchoMesa / 2) + 190, 210, Colores.RED);
-
-        // Se le muestra al jugador el valor de las cartas en la mesa en la interfaz de texto
-        System.out.println("");
-        System.out.println("Valor de la carta descubierta del crupier: " + obtenerValorCarta(crupier[0]));
-        System.out.println("Valor de la mano actual: " + puntosJugador);
-        System.out.println("");
-
-        // Se cierra el programa despues de mostrarle las cartas y la informacion basica al jugador
-        String opcion = con.readLine("Ingrese cualquier caracter para terminar el juego: ");
-        mesa.terminar();
-
-		// Acciones del jugador 
-		if (puntosJugador == 21 && puntosCrupier != 21) {
-			credito = credito + (int) apuesta * 3/2;
-			// Indicar que gano el jugador
-		} else if (puntosJugador == 21 && puntosCrupier == 21) {
-			// decir al jugador que hubo empate
-		} else if (puntosJugador <= 21) {
-			// mostrar opciones 
-			if (opcion == 1){
-				// el jugador pide una carta
+			// Una vez se tiene el monto que aposto el jugador, se reparten las cartas al azar
+			int i = 0;
+			while (i < 2) {
 				jugador[i] = darCarta(mazo);
-				//mostrar estado
-			}else if (opcion == 2) {
-				// El jugador se planta
-			}else if (opcion == 3){
-				// El jugador dobla la apuesta
-			}else if (opcion == 4) {
-				// El jugador decide salirse del juego 
-			}else {
-				//producir mensaje de error
+				crupier[i] = darCarta(mazo);
+				i++;
 			}
-		}else {
-			//el jugador sobrepaso los 21 
-		}
-		//Acciones del crupier
-		if (puntosCrupier < 17) {
-			//dar carta
-		} else if (17 <= puntosCrupier && puntosCrupier <= 21) {
-			//plantarse
-		} else {
-			// presentar perdida del crupier
-		}
 
-		//Decision del Juego
-		if (puntosCrupier == puntosJugador) {
-			// retornar la apuesta 
-		} else if (puntosJugador > puntosCrupier) {
-			//jugador gana con una relacion 1:1
-		} else {
-			//actualizar estado y componente grafico
+			// Luego se dibujan las cartas del crupier
+			dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 50, alturaCarta, anchoCarta, obtenerPaloCarta(crupier[0]), obtenerNombreCarta(crupier[0]));
+			dibujarCartaVolteada(mesa, (anchoMesa / 2) + 10, 50, alturaCarta, anchoCarta);
+
+			// E inmediatamente se dibujan las cartas del jugador
+			dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 300, alturaCarta, anchoCarta, obtenerPaloCarta(jugador[0]),  obtenerNombreCarta(jugador[0]));
+			dibujarCartaVisible(mesa, (anchoMesa / 2) + 10, 300, alturaCarta, anchoCarta, obtenerPaloCarta(jugador[1]),  obtenerNombreCarta(jugador[1]));
+			mesa.mostrar();
+
+			// Calculamos el valor de las manos en la mesa
+			puntosJugador = valorMano(jugador, 2, puntosJugador);
+			puntosCrupier = valorMano(crupier, 2, puntosCrupier);
+
+			// Se le muestra al jugador el valor de las cartas en la mesa en la interfaz grafica
+			mesa.configurarFuente("SansSerif", Font.BOLD, 18);
+			mesa.dibujarString("Carta descubierta del crupier: " + Integer.toString(obtenerValorCarta(crupier[0])), (anchoMesa / 2) - 160, 30, Colores.DARK_GRAY);
+			mesa.dibujarString("Mano actual: " + Integer.toString(puntosJugador), (anchoMesa / 2) - 82, 280, Colores.DARK_GRAY);
+
+			// Se le muestra al jugador en la interfaz grafica el numero de creditos totales
+			// que posee y tambien cuantos se apostaron en la mano actual
+			mesa.dibujarString("Creditos actuales: " + Integer.toString(credito), (anchoMesa / 2) - 410, 210, Colores.BLUE);
+			mesa.dibujarString("Creditos apostados: " + Integer.toString(apuesta), (anchoMesa / 2) + 190, 210, Colores.RED);
+
+			// Se le muestra al jugador el valor de las cartas en la mesa en la interfaz de texto
+			System.out.println("");
+			System.out.println("Valor de la carta descubierta del crupier: " + obtenerValorCarta(crupier[0]));
+			System.out.println("Valor de la mano actual: " + puntosJugador);
+			System.out.println("");
+			
+			while (!fin_mano) {
+				// Acciones del jugador 
+				if (puntosJugador == 21 && puntosCrupier != 21) {
+					credito = credito + (int) apuesta * 3/2;
+					// Indicar que gano el jugador
+				} else if (puntosJugador == 21 && puntosCrupier == 21) {
+					// decir al jugador que hubo empate y devolver dinero
+				} else if (puntosJugador <= 21) {
+					// mostrar opciones
+					System.out.println(nombre+ " estas son tus opciones: ");
+					System.out.println("(1) Recibir una carta");
+					System.out.println("(2) Plantarse");
+					System.out.println("(3) Doblar el monto de la apuesta");
+					System.out.println("(4) Salir del juego");
+					opcion = Integer.parseInt(con.readLine("Selecciona una:"));
+
+					if (opcion == 1){
+						// el jugador pide una carta
+						jugador[i] = darCarta(mazo);
+						//mostrar estado
+					}else if (opcion == 2) {
+						// El jugador se planta
+					}else if (opcion == 3){
+						// El jugador dobla la apuesta
+					}else if (opcion == 4) {
+						// El jugador decide salirse del juego 
+					}else {
+						//producir mensaje de error
+					}
+				}else {
+					//el jugador sobrepaso los 21 
+				}
+				//Acciones del crupier
+				if (puntosCrupier < 17) {
+					//dar carta
+				} else if (17 <= puntosCrupier && puntosCrupier <= 21) {
+					//plantarse
+				} else {
+					// presentar perdida del crupier
+				}
+
+				//Decision del Juego
+				if (puntosCrupier == puntosJugador) {
+					// retornar la apuesta 
+				} else if (puntosJugador > puntosCrupier) {
+					//jugador gana con una relacion 1:1
+				} else {
+					//actualizar estado y componente grafico
+				}
+			}
 		}
+	
     }
 }
