@@ -1,10 +1,176 @@
 import java.awt.Font;
+import java.util.Random;
 
 public class Cartas {
 
+	// Creacion de un enum con todas las posibles cartas
+	enum Carta {
+		AS_PICAS, DOS_PICAS, TRES_PICAS, CUATRO_PICAS,
+		CINCO_PICAS, SEIS_PICAS, SIETE_PICAS, OCHO_PICAS,
+		NUEVE_PICAS, DIEZ_PICAS, J_PICAS, Q_PICAS,
+		K_PICAS, COMODÍN_PICAS, AS_DIAMANTE, DOS_DIAMANTE,
+		TRES_DIAMANTE, CUATRO_DIAMANTE, CINCO_DIAMANTE, SEIS_DIAMANTE,
+		SIETE_DIAMANTE, OCHO_DIAMANTE, NUEVE_DIAMANTE, DIEZ_DIAMANTE,
+		J_DIAMANTE, Q_DIAMANTE, K_DIAMANTE, COMODÍN_DIAMANTE,
+		AS_TREBOL, DOS_TREBOL, TRES_TREBOL, CUATRO_TREBOL,
+		CINCO_TREBOL, SEIS_TREBOL, SIETE_TREBOL, OCHO_TREBOL,
+		NUEVE_TREBOL, DIEZ_TREBOL, J_TREBOL, Q_TREBOL,
+		K_TREBOL, COMODÍN_TREBOL, AS_CORAZON, DOS_CORAZON,
+		TRES_CORAZON, CUATRO_CORAZON, CINCO_CORAZON, SEIS_CORAZON,
+		SIETE_CORAZON, OCHO_CORAZON, NUEVE_CORAZON, DIEZ_CORAZON,
+		J_CORAZON, Q_CORAZON, K_CORAZON, COMODÍN_CORAZON;
+
+		private Carta() {
+		}
+	}
+
+	// Metodos para obtener informacion de las cartas que se repartan aleatoriamente
+
+    /**
+	 * Metodo con el que se obtendra el palo de cualquier carta
+     * perteneciente al enum Carta
+     */
+    //@ requires carta != null;
+    //@ ensures \result == "Picas" || \result == "Diamantes" || \result == "Treboles" || \result == "Corazones";
+    public static /*@ pure @*/ String obtenerPaloCarta(Carta carta) {
+        if (carta.ordinal() <= 13)
+            return "Picas";
+        else if (carta.ordinal() <= 27)
+            return "Diamantes";
+        else if (carta.ordinal() <= 41)
+            return "Treboles";
+        else
+            return "Corazones";
+    }
+
+    /**
+	 * Metodo con el que se obtendra el valor de cualquier carta
+     * perteneciente al enum Carta
+     */
+    //@ requires carta != null;
+    //@ ensures 0 < \result <= 11;
+    public static /*@ pure @*/ int obtenerValorCarta(Carta carta) {
+        if (carta.ordinal() % 14 <= 9)
+            return (carta.ordinal() % 14) + 1;
+        else if (carta.ordinal() % 14 <= 12)
+            return 10;
+        else
+            return 11;
+    }
+
+    /**
+	 * Metodo con el que se obtendra el nombre de cualquier carta perteneciente
+     * al enum Carta. El nombre de una carta es lo que va en sus esquinas.
+     */
+    //@ requires carta != null;
+    //@ ensures \result.equals("A") || \result.equals("J") || \result.equals("Q") || \result.equals("K") || \result.equals("Joker") || 2 <= Integer.parseInt(\result) <= 10;
+    public static /*@ pure @*/ String obtenerNombreCarta(Carta carta) {
+        if (carta.ordinal() % 14 == 0)
+            return "A";
+        else if (carta.ordinal() % 14 <= 9)
+            return Integer.toString((carta.ordinal() % 14) + 1);
+        else if (carta.ordinal() % 14 == 10)
+            return "J";
+        else if (carta.ordinal() % 14 == 11)
+            return "Q";
+        else if (carta.ordinal() % 14 == 12)
+            return "K";
+        else
+            return "Joker";
+    }
+
+    /**
+	 * Metodo con el que se repartira una de las 56 cartas al azar
+     */
+    //@ requires baraja.length == 56;
+    //@ ensures (\exists int i; 0 <= i && i < baraja.length; \result == baraja[i]);
+    public static /*@ pure @*/ Carta darCarta(Carta[] baraja) {
+        Random carta = new Random();
+        int aleatorio = carta.nextInt(56);
+        //@ assert aleatorio >= 0 && aleatorio < 56 ;
+        return baraja[aleatorio];
+    }
+
+    /**
+	 * Metodo que permite calcular el valor de la suma de las cartas de una mano
+     */
+    //@ requires 0 <= numCartasMano <= manoJugador.length;
+    //@ requires 0 <= puntosMano < Integer.MAX_VALUE;
+    //@ ensures 2 <= \result || \result < 31 || \result == puntosMano ;
+    public static /*@ pure @*/ int valorMano(/*@ non_null */ Carta /*@ non_null */[] manoJugador, int numCartasMano, int puntosMano) {
+        puntosMano = 0;
+
+        //@ maintaining 0 <= numCartasMano <= manoJugador.length;
+        //@ maintaining (\forall int k; 0 <= k && k < numCartasMano; manoJugador[k].ordinal() % 14 >= 1 || manoJugador[k].ordinal() % 14 <= 11);
+        //@ decreases numCartasMano;
+        while (numCartasMano != 0) {
+            numCartasMano -= 1;
+            //@ assume 0 <= numCartasMano <= 21;
+            //@ assume 0 <= puntosMano < 31;
+            if (manoJugador[numCartasMano].ordinal() % 14 <= 9)
+                puntosMano = (manoJugador[numCartasMano].ordinal() % 14) + 1 + puntosMano;
+            else if (manoJugador[numCartasMano].ordinal() % 14 <= 12)
+                puntosMano = 10 + puntosMano ;
+            else
+                puntosMano = 11 + puntosMano;
+            //@ assert puntosMano >= 2 || puntosMano <= 31;
+        }
+        //@ assert puntosMano >= 2 || puntosMano <= 31;
+        return puntosMano;
+    }
+
 	/**
-	 * Metodo con el que se mostrara graficamente las cartas visibles que vayan
-	 * apareciendo en la mano del jugador y en la del crupier
+	 * Metodo con el que se determina si el color del palo y el texto de la carta
+	 * sera negro o rojo. A Picas y a Treboles se les asigna el color negro.
+	 * Mientras que a Diamantas y a Corazones se les asigna el color rojo
+	 */
+	//@ requires (paloCarta.equals("Picas") || paloCarta.equals("Diamantes") || paloCarta.equals("Treboles") || paloCarta.equals("Corazones"));
+	//@ ensures (\result == Colores.BLACK) <== (paloCarta.equals("Picas") || paloCarta.equals("Treboles"));
+	//@ ensures (\result == Colores.RED) <== (paloCarta.equals("Diamantes") || paloCarta.equals("Corazones"));
+	public static /*@ pure @*/ Colores determinarColorCarta(String paloCarta) {
+		if (paloCarta.equals("Picas") || paloCarta.equals("Treboles"))
+			return Colores.BLACK;
+		else
+			return Colores.RED;
+	}
+
+	/**
+	 * Metodo con el que se crea un arreglo que determina la posicion X
+	 * de cada carta cuando hay una cantidad par de cartas en la mano
+	 */
+	public static /*@ pure @*/ int[] posicionesCartasManoPar(int numCartasMano, int anchoCarta, int anchoMesa) {
+		int espacio = 20;
+		int bloque = anchoCarta + espacio;
+		int[] posicionesXdeCartas = new int[numCartasMano];
+		int i = 0;
+		while (i < numCartasMano) {
+			int posicion = i - (numCartasMano / 2);
+			posicionesXdeCartas[i] = (anchoMesa / 2) + (bloque * posicion) + (espacio / 2);
+			i = i + 1;
+		}
+		return posicionesXdeCartas;
+	}
+
+	/**
+	 * Metodo con el que se crea un arreglo que determina la posicion X
+	 * de cada carta cuando hay una cantidad impar de cartas en la mano
+	 */
+	public static /*@ pure @*/ int[] posicionesCartasManoImpar(int numCartasMano, int anchoCarta, int anchoMesa) {
+		int espacio = 20;
+		int bloque = anchoCarta + espacio;
+		int[] posicionesXdeCartas = new int[numCartasMano];
+		int i = 0;
+		while (i < numCartasMano) {
+			int posicion = i - ((numCartasMano - 1 )/ 2);
+			posicionesXdeCartas[i] = (anchoMesa / 2) + (bloque * posicion) - (anchoCarta / 2);
+			i = i + 1;
+		}
+		return posicionesXdeCartas;
+	}
+
+	/**
+	 * Metodo con el que se dibuja la forma rectangular de la carta en un color blanco
+	 * y, a su vez, se dibuja el rectangulo interior que delimita el texto de la carta
 	 */
 	//@ requires mesa != null;
 	//@ requires 0 < mesa.XMAX < Integer.MAX_VALUE;
@@ -17,15 +183,32 @@ public class Cartas {
 	//@ requires (posYdeCarta + alturaCarta) < Integer.MAX_VALUE;
 	//@ requires (posXdeCarta + (anchoCarta / 2) + 25) < Integer.MAX_VALUE;
 	//@ requires (posYdeCarta + (alturaCarta / 2) + 18) < Integer.MAX_VALUE;
-	//@ requires paloCarta.length() > 0;
-	//@ requires nombreCarta.length() > 0;
-	public static void dibujarCartaVisible(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta,
-			int alturaCarta, int anchoCarta, String paloCarta, String nombreCarta) {
+	public static /*@ pure @*/ void dibujarFiguraCarta(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta,
+			int alturaCarta, int anchoCarta) {
 		// Dibujar el rectángulo externo e interno de la carta
 		mesa.dibujarRectanguloLleno(posXdeCarta, posYdeCarta, 72, 108, Colores.WHITE);
 		mesa.dibujarRectangulo(posXdeCarta + 4, posYdeCarta + 5, anchoCarta - 10, alturaCarta - 10, Colores.DARK_GRAY);
-		Colores color = Colores.BLACK;
+	}
 
+	/**
+	 * Metodo con el que se dibuja el simbolo del palo de la carta.
+	 * El simbolo que se dibujara estara centrado
+	 */
+	//@ requires mesa != null;
+	//@ requires 0 < mesa.XMAX < Integer.MAX_VALUE;
+	//@ requires 0 < mesa.YMAX < Integer.MAX_VALUE;
+	//@ requires 0 <= (posXdeCarta + 4) < Integer.MAX_VALUE;
+	//@ requires 0 <= (posYdeCarta + 5) < Integer.MAX_VALUE;
+	//@ requires 30 <= alturaCarta <= 10000;
+	//@ requires 30 <= anchoCarta <= 10000;
+	//@ requires (posXdeCarta + anchoCarta) < Integer.MAX_VALUE;
+	//@ requires (posYdeCarta + alturaCarta) < Integer.MAX_VALUE;
+	//@ requires (posXdeCarta + (anchoCarta / 2) + 25) < Integer.MAX_VALUE;
+	//@ requires (posYdeCarta + (alturaCarta / 2) + 18) < Integer.MAX_VALUE;
+	//@ requires paloCarta.equals("Picas") || paloCarta.equals("Diamantes") || paloCarta.equals("Treboles") || paloCarta.equals("Corazones");
+	//@ requires color == Colores.BLACK || color == Colores.RED;
+	public static /*@ pure @*/ void dibujarPaloCarta(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta,
+			int alturaCarta, int anchoCarta, String paloCarta, Colores color) {
 		// Dibujar el símbolo de los palos de las cartas
 		if (paloCarta.equals("Picas")) {
 			// Dibujar el símbolo de Picas
@@ -46,7 +229,6 @@ public class Cartas {
 
 		} else if (paloCarta.equals("Diamantes")) {
 			// Dibujar el símbolo de Diamantes
-			color = Colores.RED;
 			int[] xPuntos = new int[] { posXdeCarta + (anchoCarta / 2) - 12, posXdeCarta + (anchoCarta / 2),
 					posXdeCarta + (anchoCarta / 2) + 12, posXdeCarta + (anchoCarta / 2) };
 			int[] yPuntos = new int[] { posYdeCarta + (alturaCarta / 2), posYdeCarta + (alturaCarta / 2) - 18,
@@ -71,7 +253,6 @@ public class Cartas {
 
 		} else if (paloCarta.equals("Corazones")) {
 			// Dibujar el símbolo de Corazones
-			color = Colores.RED;
 			int[] xPuntos = new int[] { posXdeCarta + (anchoCarta / 2) - 14, posXdeCarta + (anchoCarta / 2),
 					posXdeCarta + (anchoCarta / 2) + 14, posXdeCarta + (anchoCarta / 2) };
 			int[] yPuntos = new int[] { posYdeCarta + (alturaCarta / 2) + 1, posYdeCarta + (alturaCarta / 2) - 2,
@@ -82,10 +263,31 @@ public class Cartas {
 			mesa.dibujarOvaloLleno(posXdeCarta + (anchoCarta / 2) - 2, posYdeCarta + (alturaCarta / 2) - 12, 17, 17,
 					color);
 		}
+	}
 
+	/**
+	 * Metodo con el que se escribira el nombre de la carta en las esquinas superior
+	 * izquierda e inferior derecha. El nombre de la carta se refiere al "A", 2, 5, "J", "K", etc
+	 */
+	//@ requires mesa != null;
+	//@ requires 0 < mesa.XMAX < Integer.MAX_VALUE;
+	//@ requires 0 < mesa.YMAX < Integer.MAX_VALUE;
+	//@ requires 0 <= (posXdeCarta + 4) < Integer.MAX_VALUE;
+	//@ requires 0 <= (posYdeCarta + 5) < Integer.MAX_VALUE;
+	//@ requires 30 <= alturaCarta <= 10000;
+	//@ requires 30 <= anchoCarta <= 10000;
+	//@ requires (posXdeCarta + anchoCarta) < Integer.MAX_VALUE;
+	//@ requires (posYdeCarta + alturaCarta) < Integer.MAX_VALUE;
+	//@ requires (posXdeCarta + (anchoCarta / 2) + 25) < Integer.MAX_VALUE;
+	//@ requires (posYdeCarta + (alturaCarta / 2) + 18) < Integer.MAX_VALUE;
+	//@ requires nombreCarta.equals("A") || nombreCarta.equals("J") || nombreCarta.equals("Q") || nombreCarta.equals("K") || nombreCarta.equals("Joker") || nombreCarta.equals("2") || nombreCarta.equals("3") || nombreCarta.equals("4") || nombreCarta.equals("5") || nombreCarta.equals("6") || nombreCarta.equals("7") || nombreCarta.equals("8") || nombreCarta.equals("9") || nombreCarta.equals("10");
+	//@ requires color == Colores.BLACK || color == Colores.RED;
+	public static /*@ pure @*/ void escribirNombreCarta(MaquinaDeTrazados mesa, int posXdeCarta, int posYdeCarta,
+			int alturaCarta, int anchoCarta, String nombreCarta, Colores color) {
 		// Escribir el nombre de la carta en las esquinas
 		int posXEsqInfIzquierda = posXdeCarta + anchoCarta - 24;
 		int posYEsqInfIzquierda = posYdeCarta + alturaCarta - 12;
+
 		mesa.configurarFuente("SansSerif", Font.BOLD, 18);
 		mesa.dibujarString(nombreCarta, posXdeCarta + 11, posYdeCarta + 24, color);
 		if (nombreCarta.equals("A")) {
@@ -199,6 +401,29 @@ public class Cartas {
 	}
 
 	public static void main(String[] args) {
+
+        // Se crea un mazo con todas las 56 posibles cartas
+        Carta mazo[] = new Carta[] {
+            Carta.AS_PICAS, Carta.DOS_PICAS, Carta.TRES_PICAS, Carta.CUATRO_PICAS,
+            Carta.CINCO_PICAS, Carta.SEIS_PICAS, Carta.SIETE_PICAS, Carta.OCHO_PICAS,
+            Carta.NUEVE_PICAS, Carta.DIEZ_PICAS, Carta.J_PICAS, Carta.Q_PICAS,
+            Carta.K_PICAS, Carta.COMODÍN_PICAS, Carta.AS_DIAMANTE, Carta.DOS_DIAMANTE,
+            Carta.TRES_DIAMANTE, Carta.CUATRO_DIAMANTE, Carta.CINCO_DIAMANTE, Carta.SEIS_DIAMANTE,
+            Carta.SIETE_DIAMANTE, Carta.OCHO_DIAMANTE, Carta.NUEVE_DIAMANTE, Carta.DIEZ_DIAMANTE,
+            Carta.J_DIAMANTE, Carta.Q_DIAMANTE, Carta.K_DIAMANTE, Carta.COMODÍN_DIAMANTE,
+            Carta.AS_TREBOL, Carta.DOS_TREBOL, Carta.TRES_TREBOL, Carta.CUATRO_TREBOL,
+            Carta.CINCO_TREBOL, Carta.SEIS_TREBOL, Carta.SIETE_TREBOL, Carta.OCHO_TREBOL,
+            Carta.NUEVE_TREBOL, Carta.DIEZ_TREBOL, Carta.J_TREBOL, Carta.Q_TREBOL,
+            Carta.K_TREBOL, Carta.COMODÍN_TREBOL, Carta.AS_CORAZON, Carta.DOS_CORAZON,
+            Carta.TRES_CORAZON, Carta.CUATRO_CORAZON, Carta.CINCO_CORAZON, Carta.SEIS_CORAZON,
+            Carta.SIETE_CORAZON, Carta.OCHO_CORAZON, Carta.NUEVE_CORAZON, Carta.DIEZ_CORAZON,
+            Carta.J_CORAZON, Carta.Q_CORAZON, Carta.K_CORAZON, Carta.COMODÍN_CORAZON
+        };
+
+        // Se declaran e inicializan las variables basicas que se usaran en el programa
+        Carta jugador[] = new Carta[21];
+        Carta crupier[] = new Carta[17];
+
 		// Resolución de la ventana donde se ejecutará el juego de BlackJack
 		int alturaCarta = 108;
 		int anchoCarta = 72;
@@ -206,23 +431,66 @@ public class Cartas {
 		int anchoMesa = 1278;
 
 		// Panel de la Máquina de Trazados. El color gris crea un fondo agradable
-		MaquinaDeTrazados mesa = new MaquinaDeTrazados(anchoMesa, alturaMesa, "OpenJML BlackJack", Colores.GRAY);
+		MaquinaDeTrazados mesa = new MaquinaDeTrazados(anchoMesa, alturaMesa, "BlackJack", Colores.GRAY);
 
 		// Semicírculo verde que imita una mesa de BlackJack real con un borde oscuro
 		mesa.dibujarOvaloLleno(1, -(anchoMesa / 2), anchoMesa, anchoMesa, Colores.DARK_GRAY);
 		mesa.dibujarOvaloLleno(11, -(anchoMesa / 2), anchoMesa - 20, anchoMesa - 20, Colores.GREEN);
 
-		// Cartas del crupier
-		dibujarCartaVisible(mesa, (anchoMesa / 2) - 174, 20, alturaCarta, anchoCarta, "Picas", "Q");
-		dibujarCartaVolteada(mesa, (anchoMesa / 2) - 82, 20, alturaCarta, anchoCarta);
-		dibujarCartaVolteada(mesa, (anchoMesa / 2) + 10, 20, alturaCarta, anchoCarta);
-		dibujarCartaVolteada(mesa, (anchoMesa / 2) + 102, 20, alturaCarta, anchoCarta);
+		// Se reparten las cartas al azar
+		int i = 0;
+		while (i < 4) {
+			jugador[i] = darCarta(mazo);
+			crupier[i] = darCarta(mazo);
+			i++;
+		}
 
-		// Cartas del jugador
-		dibujarCartaVisible(mesa, (anchoMesa / 2) - 174, 280, alturaCarta, anchoCarta, "Picas", "J");
-		dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 280, alturaCarta, anchoCarta, "Diamantes", "A");
-		dibujarCartaVisible(mesa, (anchoMesa / 2) + 10, 280, alturaCarta, anchoCarta, "Treboles", "Joker");
-		dibujarCartaVisible(mesa, (anchoMesa / 2) + 102, 280, alturaCarta, anchoCarta, "Corazones", "10");
+		// Dibujar las cartas del crupier. La primera visible y el resto volteadas
+		i = 0;
+		int numCartasCrupier = 4;
+		while (i < numCartasCrupier) {
+		// dibujarCartaVisible(mesa, (anchoMesa / 2) - 174, 20, alturaCarta, anchoCarta, "Picas", "Q");
+		// dibujarCartaVolteada(mesa, (anchoMesa / 2) - 82, 20, alturaCarta, anchoCarta);
+		// dibujarCartaVolteada(mesa, (anchoMesa / 2) + 10, 20, alturaCarta, anchoCarta);
+		// dibujarCartaVolteada(mesa, (anchoMesa / 2) + 102, 20, alturaCarta, anchoCarta);
+			int[] posicionesXdeCartas = new int[numCartasCrupier];
+			if (numCartasCrupier % 2 == 0)
+				posicionesXdeCartas = posicionesCartasManoPar(numCartasCrupier, anchoCarta, anchoMesa);
+			else
+				posicionesXdeCartas = posicionesCartasManoImpar(numCartasCrupier, anchoCarta, anchoMesa);
+			if (i == 0) {
+				String paloCarta = obtenerPaloCarta(crupier[i]);
+				Colores color = determinarColorCarta(paloCarta);
+				String nombreCarta = obtenerNombreCarta(crupier[i]);
+				dibujarFiguraCarta(mesa, posicionesXdeCartas[i], 50, alturaCarta, anchoCarta);
+				dibujarPaloCarta(mesa, posicionesXdeCartas[i], 50, alturaCarta, anchoCarta, paloCarta, color);
+				escribirNombreCarta(mesa, posicionesXdeCartas[i], 50, alturaCarta, anchoCarta, nombreCarta, color);
+			} else
+				dibujarCartaVolteada(mesa, posicionesXdeCartas[i], 50, alturaCarta, anchoCarta);
+			i = i + 1;
+		}
+
+		// Dibujar las cartas del jugador, todas visibles
+		i = 0;
+		int numCartasJugador = 4;
+		while (i < numCartasJugador) {
+			// dibujarCartaVisible(mesa, (anchoMesa / 2) - 174, 280, alturaCarta, anchoCarta, "Picas", "J");
+			// dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 280, alturaCarta, anchoCarta, "Diamantes", "A");
+			// dibujarCartaVisible(mesa, (anchoMesa / 2) + 10, 280, alturaCarta, anchoCarta, "Treboles", "Joker");
+			// dibujarCartaVisible(mesa, (anchoMesa / 2) + 102, 280, alturaCarta, anchoCarta, "Corazones", "10");
+			int[] posicionesXdeCartas = new int[numCartasJugador];
+			if (numCartasJugador % 2 == 0)
+				posicionesXdeCartas = posicionesCartasManoPar(numCartasJugador, anchoCarta, anchoMesa);
+			else
+				posicionesXdeCartas = posicionesCartasManoImpar(numCartasJugador, anchoCarta, anchoMesa);
+			String paloCarta = obtenerPaloCarta(jugador[i]);
+			Colores color = determinarColorCarta(paloCarta);
+			String nombreCarta = obtenerNombreCarta(jugador[i]);
+			dibujarFiguraCarta(mesa, posicionesXdeCartas[i], 300, alturaCarta, anchoCarta);
+			dibujarPaloCarta(mesa, posicionesXdeCartas[i], 300, alturaCarta, anchoCarta, paloCarta, color);
+			escribirNombreCarta(mesa, posicionesXdeCartas[i], 300, alturaCarta, anchoCarta, nombreCarta, color);
+			i = i + 1;
+		}
 
 		mesa.mostrar();
 	}
