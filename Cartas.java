@@ -138,13 +138,21 @@ public class Cartas {
 	 * Metodo con el que se crea un arreglo que determina la posicion X
 	 * de cada carta cuando hay una cantidad par de cartas en la mano
 	 */
+	//@ requires 0 <= numCartasMano <= 20;
+	//@ requires numCartasMano % 2 == 0;
+	//@ requires 30 <= anchoCarta <= 10000;
+	//@ requires 0 < anchoMesa < Integer.MAX_VALUE;
 	public static /*@ pure @*/ int[] posicionesCartasManoPar(int numCartasMano, int anchoCarta, int anchoMesa) {
 		int espacio = 20;
 		int bloque = anchoCarta + espacio;
 		int[] posicionesXdeCartas = new int[numCartasMano];
 		int i = 0;
+		//@ maintaining 0 <= i <= numCartasMano;
+		//@ decreases numCartasMano - i;
 		while (i < numCartasMano) {
+			//@ assume Integer.MIN_VALUE < i - (numCartasMano / 2) < Integer.MAX_VALUE;
 			int posicion = i - (numCartasMano / 2);
+			//@ assume Integer.MIN_VALUE < (anchoMesa / 2) + (bloque * posicion) + (espacio / 2) < Integer.MAX_VALUE;
 			posicionesXdeCartas[i] = (anchoMesa / 2) + (bloque * posicion) + (espacio / 2);
 			i = i + 1;
 		}
@@ -155,13 +163,21 @@ public class Cartas {
 	 * Metodo con el que se crea un arreglo que determina la posicion X
 	 * de cada carta cuando hay una cantidad impar de cartas en la mano
 	 */
+	//@ requires 1 <= numCartasMano <= 21;
+	//@ requires numCartasMano % 2 != 0;
+	//@ requires 30 <= anchoCarta <= 10000;
+	//@ requires 0 < anchoMesa < Integer.MAX_VALUE;
 	public static /*@ pure @*/ int[] posicionesCartasManoImpar(int numCartasMano, int anchoCarta, int anchoMesa) {
 		int espacio = 20;
 		int bloque = anchoCarta + espacio;
 		int[] posicionesXdeCartas = new int[numCartasMano];
 		int i = 0;
+		//@ maintaining 0 <= i <= numCartasMano;
+		//@ decreases numCartasMano - i;
 		while (i < numCartasMano) {
+			//@ assume Integer.MIN_VALUE < i - ((numCartasMano - 1 )/ 2) < Integer.MAX_VALUE;
 			int posicion = i - ((numCartasMano - 1 )/ 2);
+			//@ assume Integer.MIN_VALUE < (anchoMesa / 2) + (bloque * posicion) - (anchoCarta / 2) < Integer.MAX_VALUE;
 			posicionesXdeCartas[i] = (anchoMesa / 2) + (bloque * posicion) - (anchoCarta / 2);
 			i = i + 1;
 		}
@@ -439,56 +455,104 @@ public class Cartas {
 
 		// Se reparten las cartas al azar
 		int i = 0;
-		while (i < 4) {
-			jugador[i] = darCarta(mazo);
+		while (i < 17) {
 			crupier[i] = darCarta(mazo);
+			i++;
+		}
+		i = 0;
+		while (i < 21) {
+			jugador[i] = darCarta(mazo);
 			i++;
 		}
 
 		// Dibujar las cartas del crupier. La primera visible y el resto volteadas
 		i = 0;
-		int numCartasCrupier = 4;
+		int j = 0;
+		int numCartasCrupier = 17;
+		int size = 0;
+		int size2 = 0;
+		if (numCartasCrupier <= 12)
+			size = numCartasCrupier;
+		else {
+			size = 12;
+			size2 = numCartasCrupier - 12;
+		}
 		while (i < numCartasCrupier) {
-		// dibujarCartaVisible(mesa, (anchoMesa / 2) - 174, 20, alturaCarta, anchoCarta, "Picas", "Q");
-		// dibujarCartaVolteada(mesa, (anchoMesa / 2) - 82, 20, alturaCarta, anchoCarta);
-		// dibujarCartaVolteada(mesa, (anchoMesa / 2) + 10, 20, alturaCarta, anchoCarta);
-		// dibujarCartaVolteada(mesa, (anchoMesa / 2) + 102, 20, alturaCarta, anchoCarta);
-			int[] posicionesXdeCartas = new int[numCartasCrupier];
-			if (numCartasCrupier % 2 == 0)
-				posicionesXdeCartas = posicionesCartasManoPar(numCartasCrupier, anchoCarta, anchoMesa);
+			int[] posicionesXdeCartas = new int[size];
+			int[] posicionesXdeCartas2 = new int[size2];
+			if (size % 2 == 0)
+				posicionesXdeCartas = posicionesCartasManoPar(size, anchoCarta, anchoMesa);
 			else
-				posicionesXdeCartas = posicionesCartasManoImpar(numCartasCrupier, anchoCarta, anchoMesa);
+				posicionesXdeCartas = posicionesCartasManoImpar(size, anchoCarta, anchoMesa);
+			if (size2 % 2 == 0)
+				posicionesXdeCartas2 = posicionesCartasManoPar(size2, anchoCarta, anchoMesa);
+			else
+				posicionesXdeCartas2 = posicionesCartasManoImpar(size2, anchoCarta, anchoMesa);
 			if (i == 0) {
 				String paloCarta = obtenerPaloCarta(crupier[i]);
 				Colores color = determinarColorCarta(paloCarta);
 				String nombreCarta = obtenerNombreCarta(crupier[i]);
-				dibujarFiguraCarta(mesa, posicionesXdeCartas[i], 50, alturaCarta, anchoCarta);
-				dibujarPaloCarta(mesa, posicionesXdeCartas[i], 50, alturaCarta, anchoCarta, paloCarta, color);
-				escribirNombreCarta(mesa, posicionesXdeCartas[i], 50, alturaCarta, anchoCarta, nombreCarta, color);
-			} else
-				dibujarCartaVolteada(mesa, posicionesXdeCartas[i], 50, alturaCarta, anchoCarta);
+				dibujarFiguraCarta(mesa, posicionesXdeCartas[i], 10, alturaCarta, anchoCarta);
+				dibujarPaloCarta(mesa, posicionesXdeCartas[i], 10, alturaCarta, anchoCarta, paloCarta, color);
+				escribirNombreCarta(mesa, posicionesXdeCartas[i], 10, alturaCarta, anchoCarta, nombreCarta, color);
+			} else if (i < 12)
+				dibujarCartaVolteada(mesa, posicionesXdeCartas[i], 10, alturaCarta, anchoCarta);
+			else {
+				dibujarCartaVolteada(mesa, posicionesXdeCartas2[j], 128, alturaCarta, anchoCarta);
+				j = j + 1;
+			}
 			i = i + 1;
 		}
 
 		// Dibujar las cartas del jugador, todas visibles
-		i = 0;
-		int numCartasJugador = 4;
+		i = j = size2 = 0;
+		int k = 0;
+		int size3 = 0;
+		int numCartasJugador = 21;
+		if (numCartasJugador <= 10)
+			size = numCartasJugador;
+		else if (numCartasJugador <= 18) {
+			size = 10;
+			size2 = numCartasJugador - 10;
+		} else {
+			size = 10;
+			size2 = 8;
+			size3 = numCartasJugador - 18;
+		}
 		while (i < numCartasJugador) {
-			// dibujarCartaVisible(mesa, (anchoMesa / 2) - 174, 280, alturaCarta, anchoCarta, "Picas", "J");
-			// dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 280, alturaCarta, anchoCarta, "Diamantes", "A");
-			// dibujarCartaVisible(mesa, (anchoMesa / 2) + 10, 280, alturaCarta, anchoCarta, "Treboles", "Joker");
-			// dibujarCartaVisible(mesa, (anchoMesa / 2) + 102, 280, alturaCarta, anchoCarta, "Corazones", "10");
-			int[] posicionesXdeCartas = new int[numCartasJugador];
-			if (numCartasJugador % 2 == 0)
-				posicionesXdeCartas = posicionesCartasManoPar(numCartasJugador, anchoCarta, anchoMesa);
+			int[] posicionesXdeCartas = new int[size];
+			int[] posicionesXdeCartas2 = new int[size2];
+			int[] posicionesXdeCartas3 = new int[size3];
+			if (size % 2 == 0)
+				posicionesXdeCartas = posicionesCartasManoPar(size, anchoCarta, anchoMesa);
 			else
-				posicionesXdeCartas = posicionesCartasManoImpar(numCartasJugador, anchoCarta, anchoMesa);
+				posicionesXdeCartas = posicionesCartasManoImpar(size, anchoCarta, anchoMesa);
+			if (size2 % 2 == 0)
+				posicionesXdeCartas2 = posicionesCartasManoPar(size2, anchoCarta, anchoMesa);
+			else
+				posicionesXdeCartas2 = posicionesCartasManoImpar(size2, anchoCarta, anchoMesa);
+			if (size3 % 2 == 0)
+				posicionesXdeCartas3 = posicionesCartasManoPar(size3, anchoCarta, anchoMesa);
+			else
+				posicionesXdeCartas3 = posicionesCartasManoImpar(size3, anchoCarta, anchoMesa);
 			String paloCarta = obtenerPaloCarta(jugador[i]);
 			Colores color = determinarColorCarta(paloCarta);
 			String nombreCarta = obtenerNombreCarta(jugador[i]);
-			dibujarFiguraCarta(mesa, posicionesXdeCartas[i], 300, alturaCarta, anchoCarta);
-			dibujarPaloCarta(mesa, posicionesXdeCartas[i], 300, alturaCarta, anchoCarta, paloCarta, color);
-			escribirNombreCarta(mesa, posicionesXdeCartas[i], 300, alturaCarta, anchoCarta, nombreCarta, color);
+			if (i < 10) {
+				dibujarFiguraCarta(mesa, posicionesXdeCartas[i], 256, alturaCarta, anchoCarta);
+				dibujarPaloCarta(mesa, posicionesXdeCartas[i], 256, alturaCarta, anchoCarta, paloCarta, color);
+				escribirNombreCarta(mesa, posicionesXdeCartas[i], 256, alturaCarta, anchoCarta, nombreCarta, color);
+			} else if (i < 18) {
+				dibujarFiguraCarta(mesa, posicionesXdeCartas2[j], 374, alturaCarta, anchoCarta);
+				dibujarPaloCarta(mesa, posicionesXdeCartas2[j], 374, alturaCarta, anchoCarta, paloCarta, color);
+				escribirNombreCarta(mesa, posicionesXdeCartas2[j], 374, alturaCarta, anchoCarta, nombreCarta, color);
+				j = j + 1;
+			} else {
+				dibujarFiguraCarta(mesa, posicionesXdeCartas3[k], 492, alturaCarta, anchoCarta);
+				dibujarPaloCarta(mesa, posicionesXdeCartas3[k], 492, alturaCarta, anchoCarta, paloCarta, color);
+				escribirNombreCarta(mesa, posicionesXdeCartas3[k], 492, alturaCarta, anchoCarta, nombreCarta, color);
+				k = k + 1;
+			}
 			i = i + 1;
 		}
 
