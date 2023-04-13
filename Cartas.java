@@ -98,7 +98,6 @@ public class Cartas {
     //@ ensures 2 <= \result || \result <= 31;
     public static /*@ pure @*/ int valorMano(/*@ non_null */ Carta /*@ non_null */[] manoCartas, int numCartasMano) {
         int puntosMano = 0;
-
         //@ maintaining 0 <= numCartasMano <= manoCartas.length;
         //@ maintaining (\forall int k; 0 <= k && k < numCartasMano; manoCartas[k].ordinal() % 14 >= 1 || manoCartas[k].ordinal() % 14 <= 11);
         //@ decreases numCartasMano;
@@ -127,8 +126,10 @@ public class Cartas {
 	//@ ensures (\result == Colores.BLACK) <== (paloCarta.equals("Picas") || paloCarta.equals("Treboles"));
 	//@ ensures (\result == Colores.RED) <== (paloCarta.equals("Diamantes") || paloCarta.equals("Corazones"));
 	public static /*@ pure @*/ Colores determinarColorCarta(String paloCarta) {
+		// Si el palo es picas o treboles, se asigna el color negro
 		if (paloCarta.equals("Picas") || paloCarta.equals("Treboles"))
 			return Colores.BLACK;
+		// Si el palo es diamantes o corazones, se asigna el color rojo
 		else
 			return Colores.RED;
 	}
@@ -212,7 +213,7 @@ public class Cartas {
 	//@ requires 30 <= alturaCarta <= 10000;
 	//@ requires 30 <= anchoCarta <= 10000;
 	public static /*@ pure @*/ void dibujarMesaBlackjack(MaquinaDeTrazados mesa, int anchoMesa, int alturaMesa, int alturaCarta,
-		int anchoCarta) {
+			int anchoCarta) {
 		// Semicírculo verde que imita una mesa de BlackJack real con un borde oscuro
 		mesa.dibujarOvaloLleno(1, -(anchoMesa / 2), anchoMesa, anchoMesa, Colores.DARK_GRAY);
 		mesa.dibujarOvaloLleno(9, -(anchoMesa / 2), anchoMesa - 16, anchoMesa - 16, Colores.GREEN);
@@ -349,31 +350,37 @@ public class Cartas {
 		mesa.dibujarRectanguloLleno(posXdeCarta, posYdeCarta, 72, 108, Colores.WHITE);
 		mesa.dibujarRectangulo(posXdeCarta + 4, posYdeCarta + 5, anchoCarta - 10, alturaCarta - 10, Colores.DARK_GRAY);
 
-		// Escribir el nombre de la carta en las esquinas
-		int posXEsqInfIzquierda = posXdeCarta + anchoCarta - 24;
-		int posYEsqInfIzquierda = posYdeCarta + alturaCarta - 12;
-
+		// Configuramos la fuente apropiadamente
 		mesa.configurarFuente("SansSerif", Font.BOLD, 18);
+
+		// Escribimos el nombre de la carta en la esquina superior izquierda
 		mesa.dibujarString(nombreCarta, posXdeCarta + 11, posYdeCarta + 24, color);
+
+		// Ahora determinamos la posicion adecuada del nombre de la carta
+		// que aparecera en la esquina inferior derecha
+		int posXEsqInfDerecha = posXdeCarta + anchoCarta - 24;
+		int posYEsqInfDerecha = posYdeCarta + alturaCarta - 12;
 		if (nombreCarta.equals("A")) {
-			posXEsqInfIzquierda = posXdeCarta + anchoCarta - 26;
-			posYEsqInfIzquierda = posYdeCarta + alturaCarta - 10;
+			posXEsqInfDerecha = posXdeCarta + anchoCarta - 26;
+			posYEsqInfDerecha = posYdeCarta + alturaCarta - 10;
 		} else if (nombreCarta.equals("10")) {
-			posXEsqInfIzquierda = posXdeCarta + anchoCarta - 36;
-			posYEsqInfIzquierda = posYdeCarta + alturaCarta - 10;
+			posXEsqInfDerecha = posXdeCarta + anchoCarta - 36;
+			posYEsqInfDerecha = posYdeCarta + alturaCarta - 10;
 		} else if (nombreCarta.equals("J")) {
-			posXEsqInfIzquierda = posXdeCarta + anchoCarta - 17;
-			posYEsqInfIzquierda = posYdeCarta + alturaCarta - 13;
+			posXEsqInfDerecha = posXdeCarta + anchoCarta - 17;
+			posYEsqInfDerecha = posYdeCarta + alturaCarta - 13;
 		} else if (nombreCarta.equals("Q"))
-			posXEsqInfIzquierda = posXdeCarta + anchoCarta - 26;
+			posXEsqInfDerecha = posXdeCarta + anchoCarta - 26;
 		else if (nombreCarta.equals("K")) {
-			posXEsqInfIzquierda = posXdeCarta + anchoCarta - 26;
-			posYEsqInfIzquierda = posYdeCarta + alturaCarta - 10;
+			posXEsqInfDerecha = posXdeCarta + anchoCarta - 26;
+			posYEsqInfDerecha = posYdeCarta + alturaCarta - 10;
 		} else if (nombreCarta.equals("Joker"))
-			posXEsqInfIzquierda = posXdeCarta + 11;
+			posXEsqInfDerecha = posXdeCarta + 11;
 		else
-			posYEsqInfIzquierda = posYdeCarta + alturaCarta - 10;
-		mesa.dibujarString(nombreCarta, posXEsqInfIzquierda, posYEsqInfIzquierda, color);
+			posYEsqInfDerecha = posYdeCarta + alturaCarta - 10;
+
+		// Finalmente escribimos el nombre de la carta en la esquina superior derecha
+		mesa.dibujarString(nombreCarta, posXEsqInfDerecha, posYEsqInfDerecha, color);
 	}
 
 	/**
@@ -476,14 +483,24 @@ public class Cartas {
 	//@ requires 0 <= valorManoCrupier <= 31;
 	//@ requires 0 <= valorManoJugador <= 31;
 	public static /*@ pure @*/ void mostrarPuntuaciones(MaquinaDeTrazados mesa, int alturaMesa,
-		boolean mostrarCartasCrupier, int valorManoCrupier, int valorManoJugador) {
+			boolean mostrarCartasCrupier, int valorManoCrupier, int valorManoJugador) {
+		// Convertimos las puntuaciones de int a String para poder escribirlas
+		// en la interfaz grafica
 		String puntuacionCrupier = Integer.toString(valorManoCrupier);
 		String puntuacionJugador = Integer.toString(valorManoJugador);
+
+		// Configuramos la fuente apropiadamente
 		mesa.configurarFuente("SansSerif", Font.BOLD, 22);
+
+		// En el caso que la mano aun no haya terminado y no se hayan revelado
+		// todas las cartas del crupier solamente podemos mostrar el valor
+		// de la primera carta del crupier
 		if (mostrarCartasCrupier == false)
 			mesa.dibujarString("Valor carta visible del crupier: " + puntuacionCrupier, 30, alturaMesa - 85, Colores.BLACK);
 		else
 			mesa.dibujarString("Valor mano del crupier: " + puntuacionCrupier, 30, alturaMesa - 85, Colores.BLACK);
+
+		// Finalmente mostramos el valor de la mano del jugador
 		mesa.dibujarString("Valor mano del jugador: " + puntuacionJugador, 30, alturaMesa - 35, Colores.RED);
 	}
 
@@ -500,7 +517,7 @@ public class Cartas {
 	//@ requires 0 <= creditosActuales <= 10000;
 	//@ requires 10 <= apuestaMano<= creditosActuales;
 	public static /*@ pure @*/ void mostrarCreditos(MaquinaDeTrazados mesa, int anchoMesa, int alturaMesa,
-		int creditosActuales, int apuestaMano) {
+			int creditosActuales, int apuestaMano) {
 		String creditosTotales = Integer.toString(creditosActuales);
 		String creditosApostados = Integer.toString(apuestaMano);
 		mesa.configurarFuente("SansSerif", Font.BOLD, 22);
@@ -599,7 +616,7 @@ public class Cartas {
 					dibujarPaloCarta(mesa, posicionesXdeCartas2[j], 128, alturaCarta, anchoCarta, paloCarta, color);
 					j = j + 1;
 				}
-				valorManoCrupier = valorMano(crupier, numCartasCrupier);
+				valorManoCrupier = 28;
 			}
 			i = i + 1;
 		}
@@ -608,7 +625,7 @@ public class Cartas {
 		i = j = 0;
 		int k = 0;
 		int numCartasJugador = 21;
-		int valorManoJugador = valorMano(jugador, numCartasJugador);
+		int valorManoJugador = 31;
 		sizes = getSizes(numCartasJugador, "jugador");
 		while (i < numCartasJugador) {
 			int[] posicionesXdeCartas = new int[sizes[0]];
