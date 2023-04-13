@@ -94,22 +94,21 @@ public class Cartas {
     /**
 	 * Metodo que permite calcular el valor de la suma de las cartas de una mano
      */
-    //@ requires 0 <= numCartasMano <= manoJugador.length;
-    //@ requires 0 <= puntosMano < Integer.MAX_VALUE;
-    //@ ensures 2 <= \result || \result < 31 || \result == puntosMano ;
-    public static /*@ pure @*/ int valorMano(/*@ non_null */ Carta /*@ non_null */[] manoJugador, int numCartasMano, int puntosMano) {
-        puntosMano = 0;
+    //@ requires 0 <= numCartasMano <= manoCartas.length;
+    //@ ensures 2 <= \result || \result <= 31;
+    public static /*@ pure @*/ int valorMano(/*@ non_null */ Carta /*@ non_null */[] manoCartas, int numCartasMano) {
+        int puntosMano = 0;
 
-        //@ maintaining 0 <= numCartasMano <= manoJugador.length;
-        //@ maintaining (\forall int k; 0 <= k && k < numCartasMano; manoJugador[k].ordinal() % 14 >= 1 || manoJugador[k].ordinal() % 14 <= 11);
+        //@ maintaining 0 <= numCartasMano <= manoCartas.length;
+        //@ maintaining (\forall int k; 0 <= k && k < numCartasMano; manoCartas[k].ordinal() % 14 >= 1 || manoCartas[k].ordinal() % 14 <= 11);
         //@ decreases numCartasMano;
         while (numCartasMano != 0) {
             numCartasMano -= 1;
             //@ assume 0 <= numCartasMano <= 21;
-            //@ assume 0 <= puntosMano < 31;
-            if (manoJugador[numCartasMano].ordinal() % 14 <= 9)
-                puntosMano = (manoJugador[numCartasMano].ordinal() % 14) + 1 + puntosMano;
-            else if (manoJugador[numCartasMano].ordinal() % 14 <= 12)
+            //@ assume 0 <= puntosMano <= 31;
+            if (manoCartas[numCartasMano].ordinal() % 14 <= 9)
+                puntosMano = (manoCartas[numCartasMano].ordinal() % 14) + 1 + puntosMano;
+            else if (manoCartas[numCartasMano].ordinal() % 14 <= 12)
                 puntosMano = 10 + puntosMano ;
             else
                 puntosMano = 11 + puntosMano;
@@ -239,6 +238,15 @@ public class Cartas {
 		mesa.configurarFuente("SansSerif", Font.BOLD, 38);
 		mesa.dibujarString("Black", (anchoMesa / 2) - 110, alturaMesa - 80, Colores.BLACK);
 		mesa.dibujarString("Jack", (anchoMesa / 2) + 10, alturaMesa - 80, Colores.RED);
+
+		// Dibujar los cuatro palos de las cartas de blackjack centrados debajo del BlackJack central
+		//@ assume 0 < (anchoMesa / 2) - 110 < Integer.MAX_VALUE;
+		//@ assume 0 < alturaMesa - 100 < Integer.MAX_VALUE;
+		//@ assume alturaMesa - 100 + alturaCarta < Integer.MAX_VALUE;
+		dibujarPaloCarta(mesa, (anchoMesa / 2) - 110, alturaMesa - 100, alturaCarta, anchoCarta, "Picas", Colores.BLACK);
+		dibujarPaloCarta(mesa, (anchoMesa / 2) - 65, alturaMesa - 100, alturaCarta, anchoCarta, "Diamantes", Colores.RED);
+		dibujarPaloCarta(mesa, (anchoMesa / 2) - 20, alturaMesa - 100, alturaCarta, anchoCarta, "Treboles", Colores.BLACK);
+		dibujarPaloCarta(mesa, (anchoMesa / 2) + 25, alturaMesa - 100, alturaCarta, anchoCarta, "Corazones", Colores.RED);
 	}
 
 	/**
@@ -457,9 +465,53 @@ public class Cartas {
 		mesa.dibujarPoligonoLleno(xPuntos7, yPuntos7, 4, color);
 	}
 
-	public static void main(String[] args) {
-        // Se crea un mazo con todas las 56 posibles cartas
-        Carta mazo[] = new Carta[] {
+	/**
+	 * Metodo con el que se mostrara graficamente los valores de las manos
+	 * del crupier y del jugador en la esquina inferior izquierda
+	 */
+	//@ requires mesa != null;
+	//@ requires 0 < mesa.XMAX < Integer.MAX_VALUE;
+	//@ requires 0 < mesa.YMAX < Integer.MAX_VALUE;
+	//@ requires 0 <= alturaMesa < Integer.MAX_VALUE;
+	//@ requires 0 <= valorManoCrupier <= 31;
+	//@ requires 0 <= valorManoJugador <= 31;
+	public static /*@ pure @*/ void mostrarPuntuaciones(MaquinaDeTrazados mesa, int alturaMesa,
+		boolean mostrarCartasCrupier, int valorManoCrupier, int valorManoJugador) {
+		String puntuacionCrupier = Integer.toString(valorManoCrupier);
+		String puntuacionJugador = Integer.toString(valorManoJugador);
+		mesa.configurarFuente("SansSerif", Font.BOLD, 22);
+		if (mostrarCartasCrupier == false)
+			mesa.dibujarString("Valor carta visible del crupier: " + puntuacionCrupier, 30, alturaMesa - 85, Colores.BLACK);
+		else
+			mesa.dibujarString("Valor mano del crupier: " + puntuacionCrupier, 30, alturaMesa - 85, Colores.BLACK);
+		mesa.dibujarString("Valor mano del jugador: " + puntuacionJugador, 30, alturaMesa - 35, Colores.RED);
+	}
+
+	/**
+	 * Metodo con el que se mostrara graficamente la cantidad de creditos
+	 * que posee el jugador y la cantidad de creditos que se aposto en la mano.
+	 * Estas se muestran en la esquina inferior derecha
+	 */
+	//@ requires mesa != null;
+	//@ requires 0 < mesa.XMAX < Integer.MAX_VALUE;
+	//@ requires 0 < mesa.YMAX < Integer.MAX_VALUE;
+	//@ requires 0 <= alturaMesa < Integer.MAX_VALUE;
+	//@ requires 0 <= anchoMesa < Integer.MAX_VALUE;
+	//@ requires 0 <= creditosActuales <= 10000;
+	//@ requires 10 <= apuestaMano<= creditosActuales;
+	public static /*@ pure @*/ void mostrarCreditos(MaquinaDeTrazados mesa, int anchoMesa, int alturaMesa,
+		int creditosActuales, int apuestaMano) {
+		String creditosTotales = Integer.toString(creditosActuales);
+		String creditosApostados = Integer.toString(apuestaMano);
+		mesa.configurarFuente("SansSerif", Font.BOLD, 22);
+		mesa.dibujarString("Total de creditos restantes: " + creditosTotales, anchoMesa - 425, alturaMesa - 85, Colores.BLACK);
+		mesa.dibujarString("Creditos apostados: " + creditosApostados, anchoMesa - 325, alturaMesa - 35, Colores.RED);
+	}
+
+	//@ ensures \result != null;
+	//@ ensures \result.length == 56;
+	public static /*@ pure @*/ Carta[] repartirCartasEnElMazo() {
+		Carta[] mazo = new Carta[] {
             Carta.AS_PICAS, Carta.DOS_PICAS, Carta.TRES_PICAS, Carta.CUATRO_PICAS,
             Carta.CINCO_PICAS, Carta.SEIS_PICAS, Carta.SIETE_PICAS, Carta.OCHO_PICAS,
             Carta.NUEVE_PICAS, Carta.DIEZ_PICAS, Carta.J_PICAS, Carta.Q_PICAS,
@@ -475,6 +527,13 @@ public class Cartas {
             Carta.SIETE_CORAZON, Carta.OCHO_CORAZON, Carta.NUEVE_CORAZON, Carta.DIEZ_CORAZON,
             Carta.J_CORAZON, Carta.Q_CORAZON, Carta.K_CORAZON, Carta.COMODÍN_CORAZON
         };
+		return mazo;
+	}
+
+	public static void main(String[] args) {
+        // Se crea un mazo con todas las 56 posibles cartas
+        Carta mazo[] = new Carta[56];
+		mazo = repartirCartasEnElMazo();
 
         // Se declaran e inicializan las variables basicas que se usaran en el programa
         Carta jugador[] = new Carta[21];
@@ -491,12 +550,6 @@ public class Cartas {
 
 		// Dibujar la mesa de blackjack
 		dibujarMesaBlackjack(mesa, anchoMesa, alturaMesa, alturaCarta, anchoCarta);
-
-		// Dibujar los cuatro palos de las cartas de blackjack centrados debajo del BlackJack central
-		dibujarPaloCarta(mesa, (anchoMesa / 2) - 110, alturaMesa - 100, alturaCarta, anchoCarta, "Picas", Colores.BLACK);
-		dibujarPaloCarta(mesa, (anchoMesa / 2) - 65, alturaMesa - 100, alturaCarta, anchoCarta, "Diamantes", Colores.RED);
-		dibujarPaloCarta(mesa, (anchoMesa / 2) - 20, alturaMesa - 100, alturaCarta, anchoCarta, "Treboles", Colores.BLACK);
-		dibujarPaloCarta(mesa, (anchoMesa / 2) + 25, alturaMesa - 100, alturaCarta, anchoCarta, "Corazones", Colores.RED);
 
 		// Se reparten las cartas al azar
 		int i = 0;
@@ -515,31 +568,47 @@ public class Cartas {
 		int j = 0;
 		int numCartasCrupier = 17;
 		int[] sizes = new int[3];
+		boolean mostrarCartasCrupier = true;
+		int valorManoCrupier = 0;
 		sizes = getSizes(numCartasCrupier, "crupier");
 		while (i < numCartasCrupier) {
 			int[] posicionesXdeCartas = new int[sizes[0]];
 			int[] posicionesXdeCartas2 = new int[sizes[1]];
 			posicionesXdeCartas = posicionesManoCarta(sizes[0], anchoCarta, anchoMesa);
 			posicionesXdeCartas2 = posicionesManoCarta(sizes[1], anchoCarta, anchoMesa);
-			if (i == 0) {
-				String paloCarta = obtenerPaloCarta(crupier[i]);
-				Colores color = determinarColorCarta(paloCarta);
-				String nombreCarta = obtenerNombreCarta(crupier[i]);
-				dibujarCartaConNombre(mesa, posicionesXdeCartas[i], 10, alturaCarta, anchoCarta, nombreCarta, color);
-				dibujarPaloCarta(mesa, posicionesXdeCartas[i], 10, alturaCarta, anchoCarta, paloCarta, color);
-			} else if (i < 12)
-				dibujarCartaVolteada(mesa, posicionesXdeCartas[i], 10, alturaCarta, anchoCarta);
-			else {
-				dibujarCartaVolteada(mesa, posicionesXdeCartas2[j], 128, alturaCarta, anchoCarta);
-				j = j + 1;
+			String paloCarta = obtenerPaloCarta(crupier[i]);
+			Colores color = determinarColorCarta(paloCarta);
+			String nombreCarta = obtenerNombreCarta(crupier[i]);
+			if (mostrarCartasCrupier == false) {
+				if (i == 0) {
+					dibujarCartaConNombre(mesa, posicionesXdeCartas[i], 10, alturaCarta, anchoCarta, nombreCarta, color);
+					dibujarPaloCarta(mesa, posicionesXdeCartas[i], 10, alturaCarta, anchoCarta, paloCarta, color);
+				} else if (i < 12)
+					dibujarCartaVolteada(mesa, posicionesXdeCartas[i], 10, alturaCarta, anchoCarta);
+				else {
+					dibujarCartaVolteada(mesa, posicionesXdeCartas2[j], 128, alturaCarta, anchoCarta);
+					j = j + 1;
+				}
+				valorManoCrupier = obtenerValorCarta(crupier[0]);
+			} else {
+				if (i < 12) {
+					dibujarCartaConNombre(mesa, posicionesXdeCartas[i], 10, alturaCarta, anchoCarta, nombreCarta, color);
+					dibujarPaloCarta(mesa, posicionesXdeCartas[i], 10, alturaCarta, anchoCarta, paloCarta, color);
+				} else {
+					dibujarCartaConNombre(mesa, posicionesXdeCartas2[j], 128, alturaCarta, anchoCarta, nombreCarta, color);
+					dibujarPaloCarta(mesa, posicionesXdeCartas2[j], 128, alturaCarta, anchoCarta, paloCarta, color);
+					j = j + 1;
+				}
+				valorManoCrupier = valorMano(crupier, numCartasCrupier);
 			}
 			i = i + 1;
 		}
 
 		// Dibujar las cartas del jugador, todas visibles
-		i = j  = 0;
+		i = j = 0;
 		int k = 0;
 		int numCartasJugador = 21;
+		int valorManoJugador = valorMano(jugador, numCartasJugador);
 		sizes = getSizes(numCartasJugador, "jugador");
 		while (i < numCartasJugador) {
 			int[] posicionesXdeCartas = new int[sizes[0]];
@@ -565,6 +634,9 @@ public class Cartas {
 			}
 			i = i + 1;
 		}
+
+		mostrarPuntuaciones(mesa, alturaMesa, mostrarCartasCrupier, valorManoCrupier, valorManoJugador);
+		mostrarCreditos(mesa, anchoMesa, alturaMesa, 90, 10);
 
 		mesa.mostrar();
 	}
