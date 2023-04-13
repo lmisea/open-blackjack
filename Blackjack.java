@@ -157,24 +157,38 @@ public class Blackjack {
         return puntosMano;
     }
 
+	/**
+	 * Metodo que permite sacar la ganancia del jugador
+     */
+	//@ requires 10 <= apuesta <= credito;
+    //@ requires 10 <= credito < Integer.MAX_VALUE;
+	//@ requires 0 <= indicador <= 4;
+    //@ ensures \result == 0 || \result == (apuesta*2) || \result == (apuesta + (int) apuesta * 3/2) || \result == apuesta;
 	public static int ganancia(int apuesta, int credito, int indicador) {
-		// Ganancia del jugador 	
+		// Ganancia del jugador 
+		int ganancia = 0;
 		if (indicador == 1){
 			// Si hizo blackjack, relacion 3:2
-			credito = apuesta + (int) apuesta * 3/2;
-			return credito;
+			ganancia = apuesta + (int) apuesta * 3/2;
+			return ganancia;
 		} else if (indicador == 2) {
 			// Gana con una relacion 1:1
-			credito = apuesta*2;
-			return credito;
+			ganancia = apuesta*2;
+			return ganancia;
 		} else if (indicador == 3){
 			// Empate y se le devuelve el dinero
-			credito = credito + apuesta;
-			return credito;
+			ganancia = apuesta;
+			return ganancia;
 		}else 
-			return credito;
+			// Si pierde la partida
+			return ganancia;
 	}
 
+	/**
+	 * Metodo que muestra las opciones del jugador
+     */
+	//@ requires nombre != null;
+    //@ ensures \result == 1 || \result == 2 || \result == 3 || \result == 4;
 	public static int opciones(String nombre) {
 		// Opciones del jugador
 		Scanner entrada = new Scanner(System.in);
@@ -193,6 +207,41 @@ public class Blackjack {
 		return opcion;
 	}
 
+	/**
+	 * Metodo que pide al jugador el nombre y presenta el juego
+     */
+	//@ requires true;
+    //@ ensures \result != null;
+	public static String mensajeEntrada() {
+		Scanner entrada = new Scanner(System.in);
+		System.out.println("¡Desafia a la computadora en Blackjack!");
+        System.out.println("Desarrollado por Isea, Luis (19-10175) y Prieto, Jesus (19-10211).");
+        System.out.println("");
+        System.out.print("Por favor, ingrese su nombre: ");
+		String nombre = entrada.nextLine();
+        System.out.println("Es un placer tenerte aqui, " + nombre + ".");
+        System.out.println("");
+		return nombre;
+	}
+	
+	/**
+	 * Metodo que le muestra el valor de sus cartas y la del crupier al jugador
+     */
+	//@ requires 1 <= puntosJugador <= 21;
+    //@ ensures true;
+	public static void primeraMuestra(int puntosJugador, Carta crupier[]) {
+		System.out.println("");
+		System.out.println("Valor de la carta descubierta del crupier: " + obtenerValorCarta(crupier[0]));
+		System.out.println("Valor de la mano actual: " + puntosJugador);
+		System.out.println("");
+	}
+
+	/**
+	 * Metodo que le muestra el mensaje al jugador si perdio, empato o hizo blackjack
+     */
+	//@ requires 1 <= puntosJugador <= 33;
+	//@ requires 1 <= puntosCrupier <= 21;
+    //@ ensures \result == 1 || \result == 2 || \result == 3 || \result == 4;
 	public static int mensajeJugador(int puntosJugador, int puntosCrupier ) {
 		// Mensaje para el jugador en cada caso
 		if (puntosJugador > 21){
@@ -208,10 +257,15 @@ public class Blackjack {
 			System.out.println("Tu puntaje es de 21.");
 			System.out.println("Haz ganado la partida.");
 			return 3;
-			
 		}else
 			return 4;
 	}
+
+	/**
+	 * Metodo que muestra si el crupier perdio 
+     */
+	//@ requires 1 <= puntosCrupier <= 33;
+    //@ ensures \result == 1 || \result == 2 ;
 	public static int mensajeCrupier(int puntosCrupier ) {
 		// Mensaje del crupier si se paso del limite
 		if (puntosCrupier > 21){
@@ -222,43 +276,40 @@ public class Blackjack {
 			return 2;
 	}
 
-	public static int decision(int puntosJugador, int puntosCrupier ) {
-		// Mensaje para el jugador en cada caso
-		if (puntosJugador < puntosCrupier){
-			System.out.println("Haz perdido la partida.");
-			return 1;
-		}else if (puntosJugador > puntosCrupier) {
-			System.out.println("Haz ganado la partida.");
-			return 2;
-		} else if (puntosJugador == puntosCrupier) {
-			System.out.println("Ha ocurrido un empate");
-			return 3;
-		} else
-			return 4;
-	}
-
-	public static int doblarApuesta(int puntosJugador, int puntosCrupier, int apuesta, int credito) {
+	/**
+	 * Metodo que verifica si puede doblar la apuesta y la dobla
+     */
+	//@ requires 10 <= apuesta <= credito;
+    //@ requires 10 <= credito < Integer.MAX_VALUE;
+	//@ requires 1 <= i <= 21;
+	//@ requires 1 <= puntosJugador <= 33;
+	//@ requires 1 <= puntosCrupier <= 33;
+    //@ ensures \result == apuesta*2 || \result == apuesta;
+	public static int doblarApuesta(int puntosJugador, int puntosCrupier, int apuesta, int credito, int i) {
 		// Verificar si se puede doblar la apuesta
-		if ((puntosJugador == 9 || puntosJugador == 10 || puntosJugador == 11) && apuesta*2 < credito) {
+		if ((puntosJugador == 9 || puntosJugador == 10 || puntosJugador == 11) && apuesta*2 < credito && i == 2) {
 			// Doblarla
 			apuesta = apuesta*2;
 			return apuesta;
 		}else { 
 			// Mensaje de error al no cumplir verificacion
-			System.out.println("Para doblar necesita que la suma de sus puntos sea 9,10 o 11 y tener suficiente credito");
+			System.out.println("Para doblar necesita que la suma de sus dos primeras cartas sea 9,10 o 11 y tener suficiente credito");
 			System.out.println("Como no cumple el requisito no puede doblar la apuesta.");
 			return apuesta;
 		}
 	}
 
+	/**
+	 * Metodo que registra la resta del credito
+     */
+	//@ requires 10 <= apuesta <= credito;
+    //@ requires 10 <= credito < Integer.MAX_VALUE;
+	//@ requires 0 <= indicador <= 4;
+    //@ ensures \result == (credito-apuesta) || \result == (credito -apuesta/2);
 	public static int operacionCredito(int apuesta, int credito, int indicador) {
 		if (indicador == 1){
 			// Restar credito
 			credito = credito - apuesta;
-			return credito;
-		}else if (indicador == 2){
-			// Sumar credito
-			credito = credito + apuesta;
 			return credito;	
 		}else if (indicador == 3){
 			// Restar credito al decidir apostar el doble
@@ -268,6 +319,189 @@ public class Blackjack {
 			return credito;
 	}
 
+	/**
+	 * Metodo que verifica si el jugador hizo blackjack
+     */
+	//@ requires 10 <= apuesta <= credito;
+    //@ requires 10 <= credito < Integer.MAX_VALUE;
+	//@ requires 0 <= mensaje <= 5;
+	//@ requires 1 <= puntosJugador <= 33;
+	//@ requires 1 <= puntosCrupier <= 33;
+    //@ ensures credito <= \result <= credito + (apuesta + apuesta *(3/2));
+	public static int ver_blackjack(int apuesta, int credito, int puntosCrupier, int puntosJugador, int mensaje) {
+		//Verificar si tiene BLACKJACK o empato
+		if (mensaje == 2){
+			//Hizo BLACKJACK
+			credito = credito + ganancia(apuesta, credito, 3);
+			return credito;
+		} else if (mensaje == 3){
+			// Hubo empate
+			credito = credito + ganancia(apuesta, credito, 1);
+			return credito;
+		}else 
+			// No ocurrio nada
+			return credito;
+	}
+
+	/**
+	 * Metodo que verifica si el jugador hizo blackjack al escoger la opcion 1
+     */
+	//@ requires 10 <= apuesta <= credito;
+    //@ requires 10 <= credito < Integer.MAX_VALUE;
+	//@ requires 0 <= mensaje <= 5;
+	//@ requires 1 <= puntosJugador <= 33;
+	//@ requires 1 <= puntosCrupier <= 33;
+    //@ ensures credito <= \result <= credito + (apuesta + apuesta *(3/2));
+	public static int ver_op1(int apuesta, int credito, int puntosCrupier, int puntosJugador, int mensaje) {
+		//Verificar si tiene BLACKJACK o empato
+		if (puntosJugador > 21)
+			mensaje = 1;
+		else if (puntosJugador == puntosCrupier) 
+			mensaje = 2;
+		else if (puntosJugador == 21) 
+			mensaje = 3;
+		else
+			mensaje = 4;
+
+		if (mensaje == 2) {
+			credito = credito + ganancia(apuesta, credito, 3);
+			return credito;
+		} else if (mensaje == 3) {
+			credito = credito + ganancia(apuesta, credito, 1);
+			return credito;
+		} else
+			return credito;
+	}
+	
+	/**
+	 * Metodo que verifica si el jugador hizo blackjack al escoger la opcion 3
+     */
+	//@ requires 10 <= apuesta <= credito;
+    //@ requires 10 <= credito < Integer.MAX_VALUE;
+	//@ requires 0 <= mensaje <= 5;
+	//@ requires 1 <= puntosJugador <= 33;
+	//@ requires 1 <= puntosCrupier <= 33;
+    //@ ensures credito <= \result <= credito + (apuesta + apuesta *(3/2));
+	public static int ver_op3(int apuesta, int credito, int puntosCrupier, int puntosJugador, int mensaje) {
+		//Verificar si tiene BLACKJACK o empato
+		if (puntosJugador > 21)
+			mensaje = 1;
+		else if (puntosJugador == puntosCrupier) 
+			mensaje = 2;
+		else if (puntosJugador == 21) 
+			mensaje = 3;
+		else
+			mensaje = 4;
+
+		if (mensaje == 2) {
+			credito = credito + ganancia(apuesta, credito, 3);
+			return credito;
+		} else if (mensaje == 3) {
+			credito = credito + ganancia(apuesta, credito, 1);
+			return credito;
+		} else
+			return credito;
+	}
+
+	/**
+	 * Metodo que verifica y genera la ganacia del jugador si el crupier perdio
+     */
+	//@ requires 10 <= apuesta <= credito;
+    //@ requires 10 <= credito < Integer.MAX_VALUE;
+	//@ requires 0 <= mensaje <= 5;
+	//@ requires 1 <= puntosJugador <= 33;
+	//@ requires 1 <= puntosCrupier <= 33;
+    //@ ensures credito <= \result <= credito + (apuesta + apuesta *(3/2));
+	public static int ver_crupier(int apuesta, int credito, int puntosCrupier, int puntosJugador, int mensaje) {
+		if (mensaje == 1){
+			//Si el crupier se paso de 21
+			credito = credito + ganancia(apuesta, credito, 2);
+			return credito;
+		} else 
+			// Si el crupier se mantuvo
+			return credito;
+	}
+
+	/**
+	 * Metodo que verifica los puntos del Crupier y el jugador y toma una decision
+     */
+	//@ requires 10 <= apuesta <= credito;
+    //@ requires 10 <= credito < Integer.MAX_VALUE;
+	//@ requires 0 <= mensaje <= 5;
+	//@ requires 1 <= puntosJugador <= 33;
+	//@ requires 1 <= puntosCrupier <= 33;
+    //@ ensures credito <= \result <= credito + (apuesta + apuesta *(3/2));
+	public static int decision(int apuesta, int credito, int puntosCrupier, int puntosJugador, int mensaje) {
+		// Mensaje para el jugador en cada caso
+		if (puntosJugador < puntosCrupier){
+			System.out.println("Haz perdido la partida.");
+			mensaje = 1;
+		}else if (puntosJugador > puntosCrupier) {
+			System.out.println("Haz ganado la partida.");
+			mensaje = 2;
+		} else if (puntosJugador == puntosCrupier) {
+			System.out.println("Ha ocurrido un empate");
+			mensaje = 3;
+		} else
+			mensaje = 4;
+
+		// Obtener credito con respecto a la decision
+		if (mensaje == 3) {
+			// Retornar la apuesta, hubo empate
+			credito = credito + ganancia(apuesta, credito, 3);
+			return credito; 
+		} else if (mensaje == 2) {
+			// Jugador gana con una relacion 1:1
+			credito = credito + ganancia(apuesta, credito, 2);
+			return credito;
+		} else if (mensaje == 1) {
+			// Jugador pierde y no se le devuelve le dinero
+			credito = credito + ganancia(apuesta, credito, 4);
+			return credito;
+			//actualizar estado y componente grafico
+		} else 
+			return credito;
+	}
+
+	/**
+	 * Metodo que verifica los puntos del jugador 
+     */
+	//@ requires 1 <= puntosJugador <= 33;
+	//@ requires 1 <= puntosCrupier <= 33;
+    //@ ensures \result == 1 || \result == 2 || \result == 3 || \result == 4;
+	public static int ver_mensaje(int puntosCrupier, int puntosJugador) {
+		// verificador
+			if (puntosJugador > 21){
+				return 1;
+			} else if (puntosJugador == puntosCrupier) {
+				return 2;
+			} else if (puntosJugador == 21) {
+				return 3;
+			}else
+				return 4;
+	}
+	
+	/**
+	 * Metodo que verifica los puntos del jugador 
+     */
+	//@ requires Integer.MIN_VALUE <= cota_FM <= Integer.MAX_VALUE;
+    //@ requires 0 <= credito < Integer.MAX_VALUE;
+    //@ ensures \result == 1 || \result == 0;
+	public static int end_mano(int cota_FM, int credito) {
+		Scanner entrada = new Scanner(System.in);
+		System.out.println("Tu credito actual: "+ credito);
+		System.out.println("¿Deseas jugar otro mano?");
+		System.out.println("Para SI escribe 1");
+		System.out.println("Para NO escribe 0");
+		System.out.print("Y/N:");
+		cota_FM = entrada.nextInt();
+		while (cota_FM != 0 && cota_FM != 1 ) {
+			System.out.println("Ha ingresado un caracter erroneo");
+			System.out.print("Por favor ingrese 1 o 0:");
+			cota_FM = entrada.nextInt();
+		}
+		return cota_FM;
+	}
 	/**
 	 * Metodo con el que se mostrara graficamente las cartas visibles que vayan
 	 * apareciendo en la mano del jugador y en la del crupier
@@ -515,12 +749,8 @@ public class Blackjack {
         mesa.dibujarOvaloLleno(11, -(anchoMesa / 2), anchoMesa - 20, anchoMesa - 20, Colores.GREEN);
 
         // Mensaje de bienvenida donde se le pregunta el nombre al jugador
-        System.out.println("¡Desafia a la computadora en Blackjack!");
-        System.out.println("Desarrollado por Isea, Luis (19-10175) y Prieto, Jesus (19-10211).");
-        System.out.println("");
-        String nombre = con.readLine("Por favor, ingrese su nombre: ");
-        System.out.println("Es un placer tenerte aqui, " + nombre + ".");
-        System.out.println("");
+		
+		String nombre = mensajeEntrada();
 
         // Se le explica al jugador el sistema de creditos y apuestas
         // Luego se le pide al jugador que ingrese el monto de la apuesta usando su nombre
@@ -566,87 +796,71 @@ public class Blackjack {
 			mesa.dibujarString("Creditos apostados: " + Integer.toString(apuesta), (anchoMesa / 2) + 190, 210, Colores.RED);
 
 			// Se le muestra al jugador el valor de las cartas en la mesa en la interfaz de texto
-			System.out.println("");
-			System.out.println("Valor de la carta descubierta del crupier: " + obtenerValorCarta(crupier[0]));
-			System.out.println("Valor de la mano actual: " + puntosJugador);
-			System.out.println("");
+			primeraMuestra(puntosJugador, crupier);
 			
 			while (!fin_mano) {
 				// Acciones del jugador 
 
-				//Verificar si tiene BLACKJACK o empato
-				if (puntosJugador == 21 && puntosCrupier != 21) {
-					credito = ganancia(apuesta, credito, 1);
-					mensaje = mensajeJugador(puntosJugador, puntosCrupier);
-					// Indicar que gano el jugador
-				} else if (puntosJugador == puntosCrupier) {
-					mensaje = mensajeJugador(puntosJugador, puntosCrupier);
-					credito = operacionCredito(apuesta, credito, 2);
-				}
-
-				opcion = opciones(nombre);
-				while (opcion == 1){
-					// el jugador pide una carta
-					jugador[i] = darCarta(mazo);
-					i++;
-					// Calculo del puntaje
-					puntosJugador = valorMano(jugador, i, puntosJugador);
-
-					// Verificion del puntaje
-					mensaje = mensajeJugador(puntosJugador, puntosCrupier);
-					if (mensaje == 1){
-						break;
-					} else if (mensaje == 2) {
-						credito = apuesta + credito;
-						break;
-					} else if (mensaje == 3) {
-						credito = ganancia(apuesta, credito, 1);
+				mensaje = mensajeJugador(puntosJugador, puntosCrupier);
+				credito = ver_blackjack(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
+				if (mensaje == 2 || mensaje == 3)
+					break;
+			
+				while (puntosJugador <= 21) {
+					opcion = opciones(nombre);
+					while (opcion == 1){
+						// el jugador pide una carta
+						jugador[i] = darCarta(mazo);
+						i++;
+						// Calculo del puntaje
+						puntosJugador = valorMano(jugador, i, puntosJugador);
+						System.out.println("Este es tu puntaje: "+ puntosJugador);
+						// Verificion del puntaje
+						credito = ver_op1(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
+						if (ver_mensaje(puntosCrupier, puntosJugador) != 4)
+							break;
+						opcion = opciones(nombre);
+					}
+					if (mensajeJugador(puntosJugador, puntosCrupier) != 4){
+						fin_mano = true;
 						break;
 					}
-					opcion = opciones(nombre);
-				}
 
-				// Verificacion si el jugador gano, empato o perdio
-				if (mensaje == 1 || mensaje == 2 || mensaje == 3)
-					break;
-				else if (puntosJugador <= 21) {
 					if (opcion == 2) {
 						// El jugador se planta
+						break;
 						// Actualizar estado
 					}else if (opcion == 3) {
 						// El jugador dobla la apuesta
-						comprobante = doblarApuesta(puntosJugador, puntosCrupier, apuesta, credito);
+						comprobante = doblarApuesta(puntosJugador, puntosCrupier, apuesta, credito, i);
 						if (comprobante != apuesta ) {
 							apuesta = comprobante;
+							credito = operacionCredito(apuesta, credito, 3);
 							jugador[i] = darCarta(mazo);
 							i++;
 							puntosJugador = valorMano(jugador, i, puntosJugador);
-							credito = operacionCredito(apuesta, credito, 3);
-							mensaje = mensajeJugador(puntosJugador, puntosCrupier);
-							if (mensaje == 1){
+							System.out.println("Este es tu puntaje: "+ puntosJugador);
+							credito = ver_op3(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
+							if (mensajeJugador(puntosJugador, puntosCrupier) != 4) {
+								fin_mano = true;	
 								break;
-							} else if (mensaje == 2) {
-								credito = operacionCredito(apuesta, credito, 2);
-								break;
-							} else if (mensaje == 3) {
-								credito = ganancia(apuesta, credito, 1);
-								break;
-								
-							}else
-								puntosJugador = puntosJugador;
+							}
 						}	
 					}else {
 						// El jugador decide salirse del juego
 						salir_juego = true;
+						fin_mano = true;
 						break;
 					}
-					
-				}else if (puntosJugador > 21){
+				}
+				if (fin_mano == true)
+					break;
+				else if (puntosJugador > 21){
 					//el jugador sobrepaso los 21 
 					mensaje = mensajeJugador(puntosJugador, puntosCrupier);
 					break;
 				}
-
+				
 				//Acciones del crupier
 				while (puntosCrupier < 17) {
 					//dar carta
@@ -661,28 +875,17 @@ public class Blackjack {
 				} else {
 					// presentar perdida del crupier
 					mensaje = mensajeCrupier(puntosCrupier);
+					credito = ver_crupier(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
 					break;
 				}
-
 				//Decision del Juego
-				mensaje = decision(puntosJugador, puntosCrupier);
-				if (mensaje == 3) {
-					// Retornar la apuesta, hubo empate
-					credito = ganancia(apuesta, credito, 3); 
-				} else if (mensaje == 2) {
-					// Jugador gana con una relacion 1:1
-					credito = ganancia(apuesta, credito, 2);
-				} else if (mensaje == 1) {
-					// Jugador pierde y no se le devuelve le dinero
-					credito = ganancia(apuesta, credito, 4);
-					//actualizar estado y componente grafico
-				}
+				credito = decision(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
 				break;
 			}
-			System.out.println("¿Deseas jugar otro mano?");
-			System.out.println("Para SI escribe 1");
-			System.out.println("Para NO escribe 0");
-			cota_FM = Integer.parseInt(con.readLine("Y/N:"));
+			if (salir_juego == true) {
+				break;
+			}
+			cota_FM = end_mano(cota_FM, credito);
 			if (cota_FM == 1){
 				maxJugadas++;
 				puntosJugador = 0;
@@ -691,9 +894,10 @@ public class Blackjack {
 				mensaje = 0;
 				comprobante = 0;
 				cota_FM = 0;
-			} else
-				break;
-
+				fin_mano = false;
+			} else 
+				break; 
+				
 			if (maxJugadas == 5)
 				System.out.println("Haz alcanzado la maxima cantidad de jugadas disponibles");
 		}
