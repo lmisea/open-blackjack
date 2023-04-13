@@ -212,7 +212,7 @@ public class Cartas {
 	//@ requires 30 <= alturaCarta <= 10000;
 	//@ requires 30 <= anchoCarta <= 10000;
 	public static /*@ pure @*/ void dibujarMesaBlackjack(MaquinaDeTrazados mesa, int anchoMesa, int alturaMesa, int alturaCarta,
-		int anchoCarta) {
+			int anchoCarta) {
 		// Semicírculo verde que imita una mesa de BlackJack real con un borde oscuro
 		mesa.dibujarOvaloLleno(1, -(anchoMesa / 2), anchoMesa, anchoMesa, Colores.DARK_GRAY);
 		mesa.dibujarOvaloLleno(9, -(anchoMesa / 2), anchoMesa - 16, anchoMesa - 16, Colores.GREEN);
@@ -476,7 +476,7 @@ public class Cartas {
 	//@ requires 0 <= valorManoCrupier <= 31;
 	//@ requires 0 <= valorManoJugador <= 31;
 	public static /*@ pure @*/ void mostrarPuntuaciones(MaquinaDeTrazados mesa, int alturaMesa,
-		boolean mostrarCartasCrupier, int valorManoCrupier, int valorManoJugador) {
+			boolean mostrarCartasCrupier, int valorManoCrupier, int valorManoJugador) {
 		String puntuacionCrupier = Integer.toString(valorManoCrupier);
 		String puntuacionJugador = Integer.toString(valorManoJugador);
 		mesa.configurarFuente("SansSerif", Font.BOLD, 22);
@@ -500,7 +500,7 @@ public class Cartas {
 	//@ requires 0 <= creditosActuales <= 10000;
 	//@ requires 10 <= apuestaMano<= creditosActuales;
 	public static /*@ pure @*/ void mostrarCreditos(MaquinaDeTrazados mesa, int anchoMesa, int alturaMesa,
-		int creditosActuales, int apuestaMano) {
+			int creditosActuales, int apuestaMano) {
 		String creditosTotales = Integer.toString(creditosActuales);
 		String creditosApostados = Integer.toString(apuestaMano);
 		mesa.configurarFuente("SansSerif", Font.BOLD, 22);
@@ -599,7 +599,7 @@ public class Cartas {
 					dibujarPaloCarta(mesa, posicionesXdeCartas2[j], 128, alturaCarta, anchoCarta, paloCarta, color);
 					j = j + 1;
 				}
-				valorManoCrupier = valorMano(crupier, numCartasCrupier);
+				valorManoCrupier = 28;
 			}
 			i = i + 1;
 		}
@@ -608,7 +608,7 @@ public class Cartas {
 		i = j = 0;
 		int k = 0;
 		int numCartasJugador = 21;
-		int valorManoJugador = valorMano(jugador, numCartasJugador);
+		int valorManoJugador = 31;
 		sizes = getSizes(numCartasJugador, "jugador");
 		while (i < numCartasJugador) {
 			int[] posicionesXdeCartas = new int[sizes[0]];
