@@ -171,7 +171,7 @@ public class Blackjack {
 			// Si hizo blackjack, relacion 3:2
             //@ assume ganancia == apuesta*3/2;
 			ganancia = apuesta * 3/2;
-            ganancia = (int)apuesta;
+            ganancia = (int)ganancia;
             //@ assume ganancia == ganancia + apuesta;
             ganancia = ganancia + apuesta;
 			return ganancia;
@@ -268,7 +268,7 @@ public class Blackjack {
 	//@ requires 1 <= puntosJugador <= 33;
 	//@ requires 1 <= puntosCrupier <= 21;
     //@ ensures \result == 1 || \result == 2 || \result == 3 || \result == 4;
-	public static int mensajeJugador(int puntosJugador, int puntosCrupier ) {
+	public static int mensajeJugador(int puntosCrupier, int puntosJugador) {
 		// Mensaje para el jugador en cada caso
 		if (puntosJugador > 21){
 			System.out.println("Haz perdido la partida.");
@@ -481,24 +481,6 @@ public class Blackjack {
             //@ assume credito == credito;
 			return credito;
 	}
-
-	/**
-	 * Metodo que verifica los puntos del jugador 
-     */
-	//@ requires 1 <= puntosJugador <= 33;
-	//@ requires 1 <= puntosCrupier <= 33;
-    //@ ensures \result == 1 || \result == 2 || \result == 3 || \result == 4;
-	public static int ver_mensaje(int puntosCrupier, int puntosJugador) {
-		// verificador
-			if (puntosJugador > 21){
-				return 1;
-			} else if (puntosJugador == puntosCrupier) {
-				return 2;
-			} else if (puntosJugador == 21) {
-				return 3;
-			}else
-				return 4;
-	}
 	
 	/**
 	 * Metodo que verifica los puntos del jugador 
@@ -520,8 +502,8 @@ public class Blackjack {
         //@ decreases 4 - k;
 		while (k <= 4) {
             if (k == 4) {
-                System.out.print("Haz alcanzado la cantidad maxima de intentos");
-                System.out.print("Por lo tanto tomares que ya no deseas jugar");
+                System.out.println("Haz alcanzado la cantidad maxima de intentos");
+                System.out.println("Por lo tanto tomares que ya no deseas jugar");
                 cota_FM = 0;
                 break;
             } else if (cota_FM == 0 || cota_FM == 1) {
@@ -535,6 +517,115 @@ public class Blackjack {
 		}
 		return cota_FM;
 	}
+
+	/**
+	 * Metodo que entregara las dos primeras cartas
+     */
+	//@ requires 10 <= apuesta <= credito;
+    //@ requires 10 <= credito < Integer.MAX_VALUE;
+	//@ requires 0 <= mensaje <= 5;
+	//@ requires 1 <= puntosJugador <= 33;
+	//@ requires 1 <= puntosCrupier <= 33;
+    //@ ensures credito <= \result <= credito + (apuesta + apuesta *(3/2));
+	public static Carta[] primeras2Cartas(Carta[] baraja, Carta[] mazo) {
+		int i = 0;
+		
+		while (i <= 2) {
+			if(i == 2)
+				break;
+			baraja[i] = darCarta(mazo);
+			i++;
+		}
+		return baraja;
+	}
+
+	/**
+	 * Metodo que entregara las dos primeras cartas
+     */
+	//@ requires 10 <= apuesta <= credito;
+    //@ requires 10 <= credito < Integer.MAX_VALUE;
+	//@ requires 0 <= mensaje <= 5;
+	//@ requires 1 <= puntosJugador <= 33;
+	//@ requires 1 <= puntosCrupier <= 33;
+    //@ ensures credito <= \result <= credito + (apuesta + apuesta *(3/2));
+	public static int acciones(int puntosJugador, int puntosCrupier, int mensaje, int mensajeJugador, int apuesta, int credito, int opcion, int comprobante, Carta[] mazo, Carta[] jugador, Carta[] crupier, String nombre) {
+		int i = 2;
+		int j = 2;
+		//Accion del jugador 
+		mensaje = mensajeJugador(puntosJugador, puntosCrupier);
+		credito = ver_blackjack(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
+		if (mensaje == 2 || mensaje == 3)
+			return credito; 	
+			
+		while (puntosJugador <= 21) {
+			opcion = opciones(nombre);
+			while (opcion == 1){
+				// el jugador pide una carta
+				jugador[i] = darCarta(mazo);
+				i++;
+				// Calculo del puntaje
+				puntosJugador = valorMano(jugador, i, puntosJugador);
+				System.out.println("Este es tu puntaje: "+ puntosJugador);
+				// Verificion del puntaje
+				credito = verificacion(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
+				if (mensajeJugador(puntosCrupier, puntosJugador) != 4)
+					return credito;
+				opcion = opciones(nombre);
+			}
+			if (opcion == 2) {
+				// El jugador se planta
+				break;
+				// Actualizar estado
+			}else if (opcion == 3) {
+				// El jugador dobla la apuesta
+				comprobante = doblarApuesta(puntosJugador, puntosCrupier, apuesta, credito, i);
+				if (comprobante != apuesta ) {
+					apuesta = comprobante;
+					credito = operacionCredito(apuesta, credito, 3);
+					jugador[i] = darCarta(mazo);
+					i++;
+					puntosJugador = valorMano(jugador, i, puntosJugador);
+					System.out.println("Este es tu puntaje: "+ puntosJugador);
+					credito = verificacion(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
+					if (mensajeJugador(puntosJugador, puntosCrupier) != 4) {
+						return credito;
+					}
+				}	
+			}else {
+				// El jugador decide salirse del juego
+				return 0;
+
+			}
+		}
+		
+		if (puntosJugador > 21){
+			//el jugador sobrepaso los 21 
+			mensaje = mensajeJugador(puntosJugador, puntosCrupier);
+			return credito;
+		}
+				
+		//Acciones del crupier
+		while (puntosCrupier < 17) {
+			//dar carta
+			crupier[j] = darCarta(mazo);
+			j++;
+			puntosCrupier = valorMano(crupier, j, puntosCrupier);
+		}
+		if (17 <= puntosCrupier && puntosCrupier <= 21) {
+			// Plantarse
+			// Skip
+			// Actualizar 
+		} else {
+			// presentar perdida del crupier
+			mensaje = mensajeCrupier(puntosCrupier);
+			credito = ver_crupier(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
+			return credito;
+		}
+		//Decision del Juego
+		credito = decision(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
+		return credito;
+	}
+
 	/**
 	 * Metodo con el que se mostrara graficamente las cartas visibles que vayan
 	 * apareciendo en la mano del jugador y en la del crupier
@@ -794,16 +885,8 @@ public class Blackjack {
 			credito = operacionCredito(apuesta, credito, 1);
 
 			// Una vez se tiene el monto que aposto el jugador, se reparten las cartas al azar
-			int i = 0;
-			int j = 0;
-			while (i <= 2) {
-				if(i == 2)
-					break;
-				jugador[i] = darCarta(mazo);
-				crupier[i] = darCarta(mazo);
-				i++;
-				j++;
-			}
+			jugador = primeras2Cartas(jugador, mazo);
+			crupier = primeras2Cartas(crupier, mazo);
 
 			// Luego se dibujan las cartas del crupier
 			dibujarCartaVisible(mesa, (anchoMesa / 2) - 82, 50, alturaCarta, anchoCarta, obtenerPaloCarta(crupier[0]), obtenerNombreCarta(crupier[0]));
@@ -830,90 +913,17 @@ public class Blackjack {
 
 			// Se le muestra al jugador el valor de las cartas en la mesa en la interfaz de texto
 			primeraMuestra(puntosJugador, crupier);
-			
+			int i = 2;
+			int j = 2;
 			while (!fin_mano) {
-				// Acciones del jugador 
-
-				mensaje = mensajeJugador(puntosJugador, puntosCrupier);
-				credito = ver_blackjack(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
-				if (mensaje == 2 || mensaje == 3)
+				int comparar = acciones(puntosJugador, puntosCrupier, mensaje, mensaje, apuesta, credito, opcion, comprobante, mazo, jugador, crupier, nombre);
+				if (comparar == 0){
+					salir_juego = true;
 					break;
-			
-				while (puntosJugador <= 21) {
-					opcion = opciones(nombre);
-					while (opcion == 1){
-						// el jugador pide una carta
-						jugador[i] = darCarta(mazo);
-						i++;
-						// Calculo del puntaje
-						puntosJugador = valorMano(jugador, i, puntosJugador);
-						System.out.println("Este es tu puntaje: "+ puntosJugador);
-						// Verificion del puntaje
-						credito = verificacion(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
-						if (ver_mensaje(puntosCrupier, puntosJugador) != 4)
-							break;
-						opcion = opciones(nombre);
-					}
-					if (mensajeJugador(puntosJugador, puntosCrupier) != 4){
-						fin_mano = true;
-						break;
-					}
-
-					if (opcion == 2) {
-						// El jugador se planta
-						break;
-						// Actualizar estado
-					}else if (opcion == 3) {
-						// El jugador dobla la apuesta
-						comprobante = doblarApuesta(puntosJugador, puntosCrupier, apuesta, credito, i);
-						if (comprobante != apuesta ) {
-							apuesta = comprobante;
-							credito = operacionCredito(apuesta, credito, 3);
-							jugador[i] = darCarta(mazo);
-							i++;
-							puntosJugador = valorMano(jugador, i, puntosJugador);
-							System.out.println("Este es tu puntaje: "+ puntosJugador);
-							credito = verificacion(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
-							if (mensajeJugador(puntosJugador, puntosCrupier) != 4) {
-								fin_mano = true;	
-								break;
-							}
-						}	
-					}else {
-						// El jugador decide salirse del juego
-						salir_juego = true;
-						fin_mano = true;
-						break;
-					}
-				}
-				if (fin_mano == true)
-					break;
-				else if (puntosJugador > 21){
-					//el jugador sobrepaso los 21 
-					mensaje = mensajeJugador(puntosJugador, puntosCrupier);
-					break;
-				}
-				
-				//Acciones del crupier
-				while (puntosCrupier < 17) {
-					//dar carta
-					crupier[j] = darCarta(mazo);
-					j++;
-					puntosCrupier = valorMano(crupier, j, puntosCrupier);
-				}
-				if (17 <= puntosCrupier && puntosCrupier <= 21) {
-					// Plantarse
-					// Skip
-					// Actualizar 
 				} else {
-					// presentar perdida del crupier
-					mensaje = mensajeCrupier(puntosCrupier);
-					credito = ver_crupier(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
+					credito = comparar;
 					break;
 				}
-				//Decision del Juego
-				credito = decision(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
-				break;
 			}
 			if (salir_juego == true) {
 				break;
