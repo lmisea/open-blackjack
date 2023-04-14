@@ -306,7 +306,7 @@ public class BlackjackDemo {
      * una mano
      */
 	//@ requires 10 <= apuesta <= 100000;
-    //@ requires 10 <= credito <= 100000;
+    //@ requires 0 <= credito <= 100000;
 	//@ requires 0 <= operacion <= 3;
     //@ ensures \result == (credito - apuesta) || \result == (credito + (2 * apuesta)) || \result == credito + apuesta + ((apuesta * 3) / 2) || \result == credito + apuesta;
 	public static /*@ pure @*/ int calcularCreditoResultante(int apuesta, int credito, int operacion) {
@@ -975,6 +975,12 @@ public class BlackjackDemo {
 		}
 	}
 
+    public static /*@ pure @*/ void mensajeDespedida(String nombre) {
+        System.out.println("");
+        System.out.println("Termino el juego. Ha sido un placer tenerte aqui, " + nombre + ".");
+        System.out.println("Gracias por jugar y regresa pronto.");
+    }
+
     public static void main(String[] args) {
         // Se crea un mazo con todas las 56 posibles cartas
         Carta mazo[] = new Carta[56];
@@ -989,8 +995,8 @@ public class BlackjackDemo {
         apuesta = puntosJugador = puntosCrupier = numManosJugadas = 0;
 		int numCartasCrupier = 2;
 		int numCartasJugador = 2;
-        boolean seJugaraOtraMano, mostrarCartasCrupier, finalizoLaMano, acabaDeTerminarLaMano, hayBlackjack, sePasaronDeVeintiuno;
-        seJugaraOtraMano = mostrarCartasCrupier = finalizoLaMano = acabaDeTerminarLaMano = hayBlackjack = sePasaronDeVeintiuno = false;
+        boolean seJugaraOtraMano, mostrarCartasCrupier, finalizoLaMano, mostrarResultado, hayBlackjack, sePasaronDeVeintiuno, resultadoMostrado, calcularResultadoMano, terminoElTurnoDelJugador;
+        seJugaraOtraMano = mostrarCartasCrupier = finalizoLaMano = mostrarResultado = resultadoMostrado = hayBlackjack = sePasaronDeVeintiuno = calcularResultadoMano = terminoElTurnoDelJugador = false;
         boolean acabaDeEmpezarLaMano = true;
 
         // Se especifican las dimensiones de las cartas
@@ -1006,7 +1012,7 @@ public class BlackjackDemo {
 		// Se crea el panel de la Máquina de Trazados. El color gris crea un fondo agradable
 		MaquinaDeTrazados mesa = new MaquinaDeTrazados(anchoMesa, alturaMesa, "BlackJack", Colores.GRAY);
 
-		while (credito >= 10 && numManosJugadas != 6) {
+		while (credito >= 0 && numManosJugadas < 5) {
             // Empieza una mano
             if (acabaDeEmpezarLaMano == true) {
                 // Se le pide al jugador que ingrese el monto de la apuesta usando su nombre
@@ -1052,57 +1058,47 @@ public class BlackjackDemo {
 			mostrarPuntuacionesPorTexto(puntosCrupier, puntosJugador, mostrarCartasCrupier, crupier);
             mostrarCreditosPorTexto(credito, apuesta);
 
-            // Se revisa si el jugador o el crupier hicieron blackjack
-            hayBlackjack = revisarSiHayBlackjack(puntosCrupier, puntosJugador);
-            if (hayBlackjack == true && acabaDeTerminarLaMano != true) {
-                credito = determinarResultadoMano(apuesta, credito, puntosCrupier, puntosJugador, nombre);
-                finalizoLaMano = mostrarCartasCrupier = acabaDeTerminarLaMano = true;
-            }
-
-            // Se revisa si el jugador o el crupier se pasaron de 21
-            sePasaronDeVeintiuno = revisarSiSePasaronDeVeintiuno(puntosCrupier, puntosJugador);
-            if (sePasaronDeVeintiuno == true && acabaDeTerminarLaMano != true) {
-                credito = determinarResultadoMano(apuesta, credito, puntosCrupier, puntosJugador, nombre);
-                finalizoLaMano = mostrarCartasCrupier = acabaDeTerminarLaMano = true;
-            }
-
             // Si termina la mano se le muestra el resultado al jugador hasta
             // que el jugador introduzca un caracter
-            if (acabaDeTerminarLaMano == true) {
+            if (mostrarResultado == true) {
                 con.readLine("Ingrese cualquier caracter para aceptar el resultado de la mano: ");
                 // Variable necesaria para mostrar las cartas del crupier
                 // justo cuando termine la mano
-                acabaDeTerminarLaMano = false;
+                mostrarResultado = false;
+                resultadoMostrado = true;
+            }
+
+            // Se revisa si el jugador o el crupier hicieron blackjack
+            // 0 si el jugador o el crupier se pasaron de 21
+            hayBlackjack = revisarSiHayBlackjack(puntosCrupier, puntosJugador);
+            sePasaronDeVeintiuno = revisarSiSePasaronDeVeintiuno(puntosCrupier, puntosJugador);
+            if ((hayBlackjack == true || sePasaronDeVeintiuno == true) && resultadoMostrado == false) {
+                credito = determinarResultadoMano(apuesta, credito, puntosCrupier, puntosJugador, nombre);
+                finalizoLaMano = mostrarCartasCrupier = mostrarResultado = true;
             }
 
             // Si no hubo blackjack ni se pasaron de 21, se le da a elegir
             // al jugador que hacer a continuacion
-            if (sePasaronDeVeintiuno == false && hayBlackjack == false) {
+            if (sePasaronDeVeintiuno == false && hayBlackjack == false && resultadoMostrado == false) {
                 // A continuacion se le solicita al jugador decidir si se planta,
                 // si pide una carta adicional, si dobla su apuesta (cuando las
                 // condiciones lo permiten) o si desea salir del juego
                 int decisionJugador = consultarDecisionJugador(nombre, puntosJugador, acabaDeEmpezarLaMano, credito, apuesta);
+                // Con el valor false de esta variable se impide que se vuelvan a repartir
+                // cartas al jugador o al crupier. De esa forma es seguro pedir una nueva
+                // carta, sabiendo que las anteriores seguiran siendo las mismas
+                acabaDeEmpezarLaMano = false;
                 if (decisionJugador == 1) {
                     jugador[numCartasJugador] = darCarta(mazo);
                     numCartasJugador = numCartasJugador + 1;
-                    // Con el valor false de esta variable se impide que se vuelvan a repartir
-                    // cartas al jugador o al crupier. De esa forma es seguro pedir una nueva
-                    // carta, sabiendo que las anteriores seguiran siendo las mismas
-                    acabaDeEmpezarLaMano = false;
                 } else if (decisionJugador == 2) {
-                    credito = determinarResultadoMano(apuesta, credito, puntosCrupier, puntosJugador, nombre);
-                    mostrarCartasCrupier = finalizoLaMano = acabaDeTerminarLaMano = true;
+                    mostrarCartasCrupier = finalizoLaMano = mostrarResultado = calcularResultadoMano = terminoElTurnoDelJugador = true;
                 } else if (decisionJugador == 3) {
                     credito = calcularCreditoResultante(apuesta, credito, 0);
                     apuesta = doblarApuesta(apuesta, credito);
-                    // Con el valor false de esta variable se impide que se vuelvan a repartir
-                    // cartas al jugador o al crupier. De esa forma es seguro pedir una nueva
-                    // carta, sabiendo que las anteriores seguiran siendo las mismas
-                    acabaDeEmpezarLaMano = false;
                     jugador[numCartasJugador] = darCarta(mazo);
                     numCartasJugador = numCartasJugador + 1;
-                    credito = determinarResultadoMano(apuesta, credito, puntosCrupier, puntosJugador, nombre);
-                    mostrarCartasCrupier = finalizoLaMano = acabaDeTerminarLaMano = true;
+                    mostrarCartasCrupier = finalizoLaMano = mostrarResultado = calcularResultadoMano = terminoElTurnoDelJugador = true;
                 }
                 // El jugador decidio salirse del juego
                 else
@@ -1110,14 +1106,17 @@ public class BlackjackDemo {
 
                 // El crupier pedira una carta siempre de el valor de su mano
                 // sea menor igual a 16
-                if (puntosCrupier <= 16) {
+                while (terminoElTurnoDelJugador == true && puntosCrupier <= 16) {
                     crupier[numCartasCrupier] = darCarta(mazo);
                     numCartasCrupier = numCartasCrupier + 1;
-                    // Con el valor false de esta variable se impide que se vuelvan a repartir
-                    // cartas al jugador o al crupier. De esa forma es seguro pedir una nueva
-                    // carta, sabiendo que las anteriores seguiran siendo las mismas
-                    acabaDeEmpezarLaMano = false;
+                    puntosCrupier = valorMano(crupier, numCartasCrupier);
                 }
+            }
+
+            // Se determina el resultado de la mano luego de plantarse o doblar la apuesta
+            if (calcularResultadoMano == true) {
+                credito = determinarResultadoMano(apuesta, credito, puntosCrupier, puntosJugador, nombre);
+                calcularResultadoMano = false;
             }
 
             // Se cierra y se borra el panel de la maquina de trazados
@@ -1128,10 +1127,15 @@ public class BlackjackDemo {
 
             // Cuando termina la mano se le pregunta al jugador si quiere volver
             // a jugar otra mano o si, por otro lado, prefiere salirse del juego
-			if (finalizoLaMano == true && acabaDeTerminarLaMano == false) {
+			if (finalizoLaMano == true && resultadoMostrado == true) {
                 // El jugador alcanzo el numero maximo de manos que puede jugar en una
                 // misma sesion, por ello se termina el juego
-			    if (numManosJugadas == 5) {
+                if (credito < 10) {
+                    System.out.println("");
+                    System.out.println("Tienes menos creditos que la apuesta minina para una mano. Termina el juego.");
+                    break;
+                } else if (numManosJugadas == 4) {
+                    System.out.println("");
                     System.out.println("Has alcanzado la maxima cantidad de manos jugadas por sesion.");
                     break;
                 } else
@@ -1140,15 +1144,14 @@ public class BlackjackDemo {
                     numManosJugadas = numManosJugadas + 1;
                     numCartasCrupier = numCartasJugador = 2;
                     acabaDeEmpezarLaMano = true;
-                    finalizoLaMano = mostrarCartasCrupier = false;
+                    finalizoLaMano = mostrarCartasCrupier = mostrarResultado = resultadoMostrado = false;
                 } else
                     break;
             }
 		}
 
-		// Se cierra el programa
-        // String opcionFinal = con.readLine("Ingrese cualquier caracter para terminar el juego: ");
-		System.out.println("El juego se ha terminado.");
+		// Se cierra el programa y se despide al jugador
+		mensajeDespedida(nombre);
 		mesa.terminar();
 	}
 }
