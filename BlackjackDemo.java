@@ -213,7 +213,6 @@ public class BlackjackDemo {
     //@ requires 10 <= credito - apuesta <= 10000;
     //@ ensures \result == 2 * apuesta;
 	public static /*@ pure @*/ int doblarApuesta(int apuesta, int credito) {
-        credito = credito - apuesta;
         apuesta = 2 * apuesta;
         System.out.println("");
         System.out.println("Se ha doblado con exito su apuesta.");
@@ -253,9 +252,9 @@ public class BlackjackDemo {
             } else if (decision > 0 && decision < 5 && decision != 3)
 				break;
             else if (decision == 3) {
-                if (puntosJugador >= 9 && puntosJugador <= 11 && acabaDeEmpezarLaMano == true && (credito - apuesta) <= 10) {
-                    break;
-                } else
+                if (puntosJugador >= 9 && puntosJugador <= 11 && acabaDeEmpezarLaMano == true && (credito - apuesta) >= 10)
+                        break;
+                else {
                     System.out.println("");
                     System.out.println("No se puede doblar la apuesta si no se cumplen las condiciones necesarias.");
                     System.out.println("Para doblar su apuesta, el valor de su mano debe ser 9, 10 u 11.");
@@ -264,6 +263,7 @@ public class BlackjackDemo {
                     System.out.println("");
                     System.out.print("Por favor, escoga otra opcion:");
                     decision = entrada.nextInt();
+                }
             } else {
 				System.out.print(nombre + " has elegido una opcion erronea.");
 				System.out.print("Por favor, escoga otra opcion:");
@@ -323,7 +323,7 @@ public class BlackjackDemo {
      * y la cantidad de creditos apostados en la mano actual, a traves
      * de la interfaz de texto
      */
-	//@ requires 0 <= credito <= 10000;
+	//@ requires 0 <= credito <= 1000000;
 	//@ requires 10 <= apuesta <= 10000;
 	public static /*@ pure @*/ void mostrarCreditosPorTexto(int credito, int apuesta) {
         System.out.println("Total de creditos restantes: " + credito);
@@ -337,10 +337,10 @@ public class BlackjackDemo {
 	//@ requires 1 <= puntosJugador <= 33;
 	//@ requires 1 <= puntosCrupier <= 21;
     //@ ensures \result == 1 || \result == 2 || \result == 3 || \result == 4;
-	public static int mensajeJugador(int puntosJugador, int puntosCrupier ) {
+	public static int mensajeJugador(int puntosJugador, int puntosCrupier) {
 		// Mensaje para el jugador en cada caso
 		if (puntosJugador > 21){
-			System.out.println("Haz perdido la partida.");
+			System.out.println("Has perdido la partida.");
 			System.out.println("Tu puntaje es mayor que 21.");
 			return 1;
 		} else if (puntosJugador == puntosCrupier) {
@@ -350,7 +350,7 @@ public class BlackjackDemo {
 		} else if (puntosJugador == 21) {
 			System.out.println("¡Hiciste BLACKJACK!");
 			System.out.println("Tu puntaje es de 21.");
-			System.out.println("Haz ganado la partida.");
+			System.out.println("Has ganado la mano.");
 			return 3;
 		} else
 			return 4;
@@ -365,7 +365,7 @@ public class BlackjackDemo {
 		// Mensaje del crupier si se paso del limite
 		if (puntosCrupier > 21){
 			System.out.println("El puntaje del crupier es mayor que 21");
-			System.out.println("Haz ganado la partida.");
+			System.out.println("Has ganado la partida.");
 			return 1;
 		} else
 			return 2;
@@ -394,6 +394,31 @@ public class BlackjackDemo {
 		} else
             //@ assume credito == credito;
 			return credito;
+	}
+
+    /**
+	 * Metodo que verifica si el jugador o el crupier se pasaron de 21
+     */
+	//@ requires 2 <= puntosJugador <= 31;
+	//@ requires 2 <= puntosCrupier <= 28;
+    //@ ensures 0 <= \result <= 4;
+	public static /*@ pure @*/ int revisarSiSePasaronDeVeintiuno(int puntosCrupier, int puntosJugador) {
+		int resultado = 0;
+        // Tanto el crupier como el jugador se pasaron de 21
+        // Esto es un empate
+        if (puntosCrupier > 21 && puntosJugador > 21)
+			resultado = 1;
+        // El jugador se paso de 21, perdio la mano
+		else if (puntosJugador > 21)
+			resultado = 2;
+        // El crupier se paso de 21, perdio la mano
+		else if (puntosCrupier > 21)
+            resultado = 3;
+        // Ninguno de los dos se paso de 21
+        // Se le preguntara al jugador que desea hacer
+        else
+            resultado = 4;
+        return resultado;
 	}
 
 	/**
@@ -477,94 +502,6 @@ public class BlackjackDemo {
 			return credito;
 	}
 
-    // /**
-	//  * Metodo que entregara las dos primeras cartas
-    //  */
-	// //@ requires 10 <= apuesta <= credito;
-    // //@ requires 10 <= credito < Integer.MAX_VALUE;
-	// //@ requires 0 <= mensaje <= 5;
-	// //@ requires 1 <= puntosJugador <= 33;
-	// //@ requires 1 <= puntosCrupier <= 33;
-    // //@ ensures credito <= \result <= credito + (apuesta + apuesta *(3/2));
-	// public static int acciones(int puntosJugador, int puntosCrupier, int mensaje, int mensajeJugador, int apuesta, int credito,
-    //         int opcion, int comprobante, Carta[] mazo, Carta[] jugador, Carta[] crupier, String nombre, boolean mostrarCartasCrupier) {
-	// 	int i = 2;
-	// 	int j = 2;
-	// 	//Accion del jugador
-	// 	mensaje = mensajeJugador(puntosJugador, puntosCrupier);
-	// 	credito = revisarSiHayBlackjack(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
-	// 	if (mensaje == 2 || mensaje == 3)
-	// 		return credito;
-
-	// 	while (puntosJugador <= 21) {
-	// 		opcion = opciones(nombre);
-	// 		while (opcion == 1){
-	// 			// el jugador pide una carta
-	// 			jugador[i] = darCarta(mazo);
-	// 			i++;
-	// 			// Calculo del puntaje
-	// 			puntosJugador = valorMano(jugador, i, "jugador", mostrarCartasCrupier);
-	// 			System.out.println("Este es tu puntaje: "+ puntosJugador);
-	// 			// Verificion del puntaje
-	// 			credito = determinarResultadoMano(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
-	// 			if (mensajeJugador(puntosCrupier, puntosJugador) != 4)
-	// 				return credito;
-	// 			opcion = opciones(nombre);
-	// 		}
-	// 		if (opcion == 2) {
-	// 			// El jugador se planta
-	// 			break;
-	// 			// Actualizar estado
-	// 		} else if (opcion == 3) {
-	// 			// El jugador dobla la apuesta
-	// 			comprobante = doblarApuesta(puntosJugador, puntosCrupier, apuesta, credito, i);
-	// 			if (comprobante != apuesta) {
-	// 				apuesta = comprobante;
-	// 				credito = operacionCredito(apuesta, credito, 3);
-	// 				jugador[i] = darCarta(mazo);
-	// 				i++;
-	// 				puntosJugador = valorMano(jugador, i, "jugador", mostrarCartasCrupier);
-	// 				System.out.println("Este es tu puntaje: "+ puntosJugador);
-	// 				credito = determinarResultadoMano(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
-	// 				if (mensajeJugador(puntosJugador, puntosCrupier) != 4) {
-	// 					return credito;
-	// 				}
-	// 			}
-	// 		} else {
-	// 			// El jugador decide salirse del juego
-	// 			return 0;
-
-	// 		}
-	// 	}
-
-	// 	if (puntosJugador > 21){
-	// 		//el jugador sobrepaso los 21
-	// 		mensaje = mensajeJugador(puntosJugador, puntosCrupier);
-	// 		return credito;
-	// 	}
-
-	// 	//Acciones del crupier
-	// 	while (puntosCrupier < 17) {
-	// 		//dar carta
-	// 		crupier[j] = darCarta(mazo);
-	// 		j++;
-	// 		puntosCrupier = valorMano(crupier, j, "crupier", mostrarCartasCrupier);
-	// 	}
-	// 	if (17 <= puntosCrupier && puntosCrupier <= 21) {
-	// 		// Plantarse
-	// 		// Skip
-	// 		// Actualizar
-	// 	} else {
-	// 		// presentar perdida del crupier
-	// 		mensaje = mensajeCrupier(puntosCrupier);
-	// 		credito = ver_crupier(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
-	// 		return credito;
-	// 	}
-	// 	//Decision del Juego
-	// 	credito = decision(apuesta, credito, puntosCrupier, puntosJugador, mensaje);
-	// 	return credito;
-	// }
-
 	/**
 	 * Metodo que verifica los puntos del Crupier y el jugador y toma una decision
      */
@@ -577,10 +514,10 @@ public class BlackjackDemo {
 	public static int decision(int apuesta, int credito, int puntosCrupier, int puntosJugador, int mensaje) {
 		// Mensaje para el jugador en cada caso
 		if (puntosJugador < puntosCrupier){
-			System.out.println("Haz perdido la partida.");
+			System.out.println("Has perdido la partida.");
 			mensaje = 1;
 		}else if (puntosJugador > puntosCrupier) {
-			System.out.println("Haz ganado la partida.");
+			System.out.println("Has ganado la partida.");
 			mensaje = 2;
 		} else if (puntosJugador == puntosCrupier) {
 			System.out.println("Ha ocurrido un empate");
@@ -634,37 +571,40 @@ public class BlackjackDemo {
 	 * maximo de manos seguidas que puede jugar por sesion y se termina
 	 * el juego
      */
-	//@ requires Integer.MIN_VALUE <= cotaFM <= Integer.MAX_VALUE;
-    //@ requires 0 <= credito < Integer.MAX_VALUE;
-    //@ ensures \result == 1 || \result == 0;
-	public static int determinarSiSeJugaraOtraMano(int cotaFM, int credito) {
+    //@ requires 0 <= credito <= 1000000;
+    //@ ensures \result == true || \result == false;
+	public static /*@ pure @*/ boolean determinarSiSeJugaraOtraMano(int credito) {
         int k = 0;
 		Scanner entrada = new Scanner(System.in);
-		System.out.println("Tu credito actual: "+ credito);
+        boolean seJugaraOtraMano = false;
+        System.out.println("");
+		System.out.println("Tu credito actual es: " + credito);
 		System.out.println("¿Deseas jugar otro mano?");
-		System.out.println("Para SI escribe 1");
-		System.out.println("Para NO escribe 0");
-		System.out.print("1/0:");
-		cotaFM = entrada.nextInt();
-        //@ maintaining 0 <= k <= 4;
-        //@ maintaining (\forall int p; 0 <= p && p < k; cotaFM != 1 || cotaFM != 0 || cotaFM == 1 || cotaFM == 0 );
-        //@ decreases 4 - k;
-		while (k <= 4) {
-            if (k == 4) {
-                System.out.print("Haz alcanzado la cantidad maxima de intentos");
-                System.out.print("Por lo tanto creemos que ya no deseas jugar");
-                cotaFM = 0;
+		System.out.println("Para SI escribe 1. Para NO escribe 0.");
+		System.out.print("1/0: ");
+		int decisionJugador = entrada.nextInt();
+        //@ maintaining 0 <= k <= 3;
+        //@ maintaining (\forall int p; 0 <= p && p < k; decisionJugador != 1 || decisionJugador != 0 || decisionJugador == 1 || decisionJugador == 0);
+        //@ decreases 3 - k;
+		while (k < 3) {
+            if (k == 2) {
+                System.out.print("Has alcanzado la cantidad maxima de intentos.");
+                System.out.print("Por lo tanto, se asumira que ya no desea jugar.");
+                seJugaraOtraMano = false;
+            } else if (decisionJugador == 0) {
+                seJugaraOtraMano = false;
                 break;
-            } else if (cotaFM == 0 || cotaFM == 1) {
+            } else if (decisionJugador == 1) {
+                seJugaraOtraMano = true;
                 break;
             } else {
-                System.out.println("Ha ingresado un caracter erroneo");
-                System.out.print("Por favor ingrese 1 o 0:");
-                cotaFM = entrada.nextInt();
+                System.out.println("Ha ingresado un caracter invalido.");
+                System.out.print("Por favor, ingrese 1 para jugar una nueva mano o 0 para no jugar mas: ");
+                decisionJugador = entrada.nextInt();
             }
-            k++;
+            k = k + 1;
 		}
-		return cotaFM;
+		return seJugaraOtraMano;
 	}
 
 	/**
@@ -1048,12 +988,12 @@ public class BlackjackDemo {
 		// todas las cartas del crupier solamente podemos mostrar el valor
 		// de la primera carta del crupier
 		if (mostrarCartasCrupier == false)
-			mesa.dibujarString("Valor carta visible del crupier: " + puntuacionCrupier, 30, alturaMesa - 125, Colores.BLACK);
+			mesa.dibujarString("Valor carta visible del crupier: " + puntuacionCrupier, 30, alturaMesa - 105, Colores.BLACK);
 		else
-			mesa.dibujarString("Valor mano del crupier: " + puntuacionCrupier, 30, alturaMesa - 125, Colores.BLACK);
+			mesa.dibujarString("Valor mano del crupier: " + puntuacionCrupier, 30, alturaMesa - 105, Colores.BLACK);
 
 		// Finalmente mostramos el valor de la mano del jugador
-		mesa.dibujarString("Valor mano del jugador: " + puntuacionJugador, 30, alturaMesa - 75, Colores.RED);
+		mesa.dibujarString("Valor mano del jugador: " + puntuacionJugador, 30, alturaMesa - 55, Colores.RED);
 	}
 
 	/**
@@ -1066,15 +1006,15 @@ public class BlackjackDemo {
 	//@ requires 0 < mesa.YMAX < Integer.MAX_VALUE;
 	//@ requires 0 <= alturaMesa < Integer.MAX_VALUE;
 	//@ requires 0 <= anchoMesa < Integer.MAX_VALUE;
-	//@ requires 0 <= credito <= 10000;
+	//@ requires 0 <= credito <= 1000000;
 	//@ requires 10 <= apuesta <= 10000;
 	public static /*@ pure @*/ void mostrarCreditos(MaquinaDeTrazados mesa, int anchoMesa, int alturaMesa,
 			int credito, int apuesta) {
 		String creditosTotales = Integer.toString(credito);
 		String creditosApostados = Integer.toString(apuesta);
 		mesa.configurarFuente("SansSerif", Font.BOLD, 22);
-		mesa.dibujarString("Total de creditos restantes: " + creditosTotales, anchoMesa - 425, alturaMesa - 125, Colores.BLACK);
-		mesa.dibujarString("Creditos apostados: " + creditosApostados, anchoMesa - 325, alturaMesa - 75, Colores.RED);
+		mesa.dibujarString("Total de creditos restantes: " + creditosTotales, anchoMesa - 425, alturaMesa - 105, Colores.BLACK);
+		mesa.dibujarString("Creditos apostados: " + creditosApostados, anchoMesa - 325, alturaMesa - 55, Colores.RED);
 	}
 
 	//@ ensures \result != null;
@@ -1176,18 +1116,12 @@ public class BlackjackDemo {
         Carta jugador[] = new Carta[21];
         Carta crupier[] = new Carta[17];
         int credito = 100;
-		int apuesta = 0;
-        int puntosJugador = 0;
-        int puntosCrupier = 0;
+		int apuesta, puntosJugador, puntosCrupier, numManosJugadas, hayBlackjack, sePasaronDeVeintiuno;
+        apuesta = puntosJugador = puntosCrupier = numManosJugadas = hayBlackjack = sePasaronDeVeintiuno = 0;
 		int numCartasCrupier = 2;
 		int numCartasJugador = 2;
-		int resultado = 0;
-		int comprobante = 0;
-		int cotaFM = 0;
-		int numManosJugadas = 0;
-		boolean mostrarCartasCrupier = false;
-		boolean salirJuego = false;
-		boolean finalizoLaMano = false;
+        boolean seJugaraOtraMano, mostrarCartasCrupier, finalizoLaMano;
+        seJugaraOtraMano = mostrarCartasCrupier = finalizoLaMano = false;
         boolean acabaDeEmpezarLaMano = true;
 
         // Se especifican las dimensiones de las cartas
@@ -1203,16 +1137,17 @@ public class BlackjackDemo {
 		// Se crea el panel de la Máquina de Trazados. El color gris crea un fondo agradable
 		MaquinaDeTrazados mesa = new MaquinaDeTrazados(anchoMesa, alturaMesa, "BlackJack", Colores.GRAY);
 
-		while (!salirJuego && credito >= 10 && numManosJugadas != 5) {
-        	// Se le pide al jugador que ingrese el monto de la apuesta usando su nombre
-			// Tambien se le explica al jugador el sistema de creditos y apuestas
-			apuesta = obtenerApuesta(credito, nombre);
-			credito = operacionCredito(apuesta, credito, 1);
+		while (credito >= 10 && numManosJugadas != 6) {
+            // Empieza una mano
+            if (acabaDeEmpezarLaMano == true) {
+                // Se le pide al jugador que ingrese el monto de la apuesta usando su nombre
+                // Tambien se le explica al jugador el sistema de creditos y apuestas
+                apuesta = obtenerApuesta(credito, nombre);
+                credito = operacionCredito(apuesta, credito, 1);
 
-			// Una vez se tiene el monto que aposto el jugador, se reparten las cartas al azar
-            // Pero solo la primera vez que se itera en la misma mano, sino se cambiarian
-            // las cartas cuando se pida una nueva
-			if (acabaDeEmpezarLaMano == true) {
+                // Una vez se tiene el monto que aposto el jugador, se reparten las cartas al azar
+                // Pero solo la primera vez que se itera en la misma mano, sino se cambiarian
+                // las cartas cuando se pida una nueva
                 jugador = repartirCartasIniciales(jugador, mazo);
                 crupier = repartirCartasIniciales(crupier, mazo);
             }
@@ -1224,15 +1159,11 @@ public class BlackjackDemo {
             // platado, se dibuja la primera carta visible y el resto volteadas
             // Luego, cuando el jugador se planta, se dibujan todas las cartas
             // del crupier de forma visible
-            int i, j;
-			i = j = 0;
 			int[] sizes = new int[3];
 			sizes = getSizes(numCartasCrupier, "crupier");
 			dibujarCartasCrupier(mesa, anchoMesa, anchoCarta, alturaCarta, sizes, numCartasCrupier, crupier, mostrarCartasCrupier);
 
 			// Inmediatamente, se dibujan las cartas del jugador, todas visibles
-			i = j = 0;
-			int k = 0;
 			sizes = getSizes(numCartasJugador, "jugador");
 			dibujarCartasJugador(mesa, anchoMesa, anchoCarta, alturaCarta, sizes, numCartasJugador, jugador);
 
@@ -1252,36 +1183,57 @@ public class BlackjackDemo {
 			mostrarPuntuacionesPorTexto(puntosCrupier, puntosJugador, mostrarCartasCrupier, crupier);
             mostrarCreditosPorTexto(credito, apuesta);
 
-            // Se revisa si el jugador o el crupier hicieron blackjack
-            resultado = revisarSiHayBlackjack(puntosCrupier, puntosJugador);
-            if (resultado != 4) {
-                System.out.println("Alguien hizo blackjack");
+            // Se revisa si el jugador o el crupier se pasaron de 21
+            sePasaronDeVeintiuno = revisarSiSePasaronDeVeintiuno(puntosCrupier, puntosJugador);
+            if (sePasaronDeVeintiuno != 4) {
+                System.out.println("Alguien se paso de 21");
+                finalizoLaMano = mostrarCartasCrupier = true;
             }
 
-            // A continuacion se le solicita al jugador decidir si se planta,
-            // si pide una carta adicional, si dobla su apuesta (cuando las
-            // condiciones lo permiten) o si desea salir del juego
-            int decisionJugador = consultarDecisionJugador(nombre, puntosJugador, acabaDeEmpezarLaMano, credito, apuesta);
-			if (decisionJugador == 1) {
-                jugador[numCartasJugador] = darCarta(mazo);
-                numCartasJugador = numCartasJugador + 1;
-                // Con el valor false de esta variable se impide que se vuelvan a repartir
-                // cartas al jugador o al crupier. De esa forma es seguro pedir una nueva
-                // carta, sabiendo que las anteriores seguiran siendo las mismas
-                acabaDeEmpezarLaMano = false;
-            } else if (decisionJugador == 2) {
-                determinarResultadoMano(apuesta, credito, puntosCrupier, puntosJugador, resultado);
-                mostrarCartasCrupier = true;
-			} else if (decisionJugador == 3) {
-                apuesta = doblarApuesta(apuesta, credito);
-                // Con el valor false de esta variable se impide que se vuelvan a repartir
-                // cartas al jugador o al crupier. De esa forma es seguro pedir una nueva
-                // carta, sabiendo que las anteriores seguiran siendo las mismas
-                acabaDeEmpezarLaMano = false;
+            // Se revisa si el jugador o el crupier hicieron blackjack
+            hayBlackjack = revisarSiHayBlackjack(puntosCrupier, puntosJugador);
+            if (hayBlackjack != 4) {
+                System.out.println("Alguien hizo blackjack");
+                finalizoLaMano = mostrarCartasCrupier = true;
             }
-            // El jugador decidio salirse del juego
-            else
-                break;
+
+            if (sePasaronDeVeintiuno == 4 && hayBlackjack == 4) {
+                // A continuacion se le solicita al jugador decidir si se planta,
+                // si pide una carta adicional, si dobla su apuesta (cuando las
+                // condiciones lo permiten) o si desea salir del juego
+                int decisionJugador = consultarDecisionJugador(nombre, puntosJugador, acabaDeEmpezarLaMano, credito, apuesta);
+                if (decisionJugador == 1) {
+                    jugador[numCartasJugador] = darCarta(mazo);
+                    numCartasJugador = numCartasJugador + 1;
+                    // Con el valor false de esta variable se impide que se vuelvan a repartir
+                    // cartas al jugador o al crupier. De esa forma es seguro pedir una nueva
+                    // carta, sabiendo que las anteriores seguiran siendo las mismas
+                    acabaDeEmpezarLaMano = false;
+                } else if (decisionJugador == 2) {
+                    determinarResultadoMano(apuesta, credito, puntosCrupier, puntosJugador, hayBlackjack);
+                    mostrarCartasCrupier = true;
+                    finalizoLaMano = true;
+                } else if (decisionJugador == 3) {
+                    credito = credito - apuesta;
+                    apuesta = doblarApuesta(apuesta, credito);
+                    // Con el valor false de esta variable se impide que se vuelvan a repartir
+                    // cartas al jugador o al crupier. De esa forma es seguro pedir una nueva
+                    // carta, sabiendo que las anteriores seguiran siendo las mismas
+                    acabaDeEmpezarLaMano = false;
+                }
+                // El jugador decidio salirse del juego
+                else
+                    break;
+
+                if (puntosCrupier < 17) {
+                    crupier[numCartasCrupier] = darCarta(mazo);
+                    numCartasCrupier = numCartasCrupier + 1;
+                    // Con el valor false de esta variable se impide que se vuelvan a repartir
+                    // cartas al jugador o al crupier. De esa forma es seguro pedir una nueva
+                    // carta, sabiendo que las anteriores seguiran siendo las mismas
+                    acabaDeEmpezarLaMano = false;
+                }
+            }
 
             // Se cierra y se borra el panel de la maquina de trazados
             // Esto es para poder redibujar el panel en el caso de que el jugador
@@ -1292,25 +1244,26 @@ public class BlackjackDemo {
             // Cuando termina la mano se le pregunta al jugador si quiere volver
             // a jugar otra mano o si, por otro lado, prefiere salirse del juego
 			if (finalizoLaMano == true) {
-                cotaFM = determinarSiSeJugaraOtraMano(cotaFM, credito);
-                if (cotaFM == 1) {
+                // El jugador alcanzo el numero maximo de manos que puede jugar en una
+                // misma sesion, por ello se termina el juego
+			    if (numManosJugadas == 5) {
+                    System.out.println("Has alcanzado la maxima cantidad de manos jugadas por sesion.");
+                    break;
+                } else
+                    seJugaraOtraMano = determinarSiSeJugaraOtraMano(credito);
+                if (seJugaraOtraMano == true) {
                     numManosJugadas = numManosJugadas + 1;
-                    puntosJugador = puntosCrupier = decisionJugador = 0;
-                    resultado = comprobante = cotaFM = 0;
+                    numCartasCrupier = numCartasJugador = 2;
                     acabaDeEmpezarLaMano = true;
+                    finalizoLaMano = mostrarCartasCrupier = false;
                 } else
                     break;
             }
-
-            // El jugador alcanzo el numero maximo de manos que puede jugar en una
-            // misma sesion, por ello se termina el juego
-			if (numManosJugadas == 5)
-				System.out.println("Haz alcanzado la maxima cantidad de jugadas disponibles");
 		}
 
 		// Se cierra el programa
         // String opcionFinal = con.readLine("Ingrese cualquier caracter para terminar el juego: ");
-		System.out.println("El juego se ha terminado");
+		System.out.println("El juego se ha terminado.");
 		mesa.terminar();
 	}
 }
